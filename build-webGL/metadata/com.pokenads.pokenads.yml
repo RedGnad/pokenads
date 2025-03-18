@@ -1,0 +1,12 @@
+Categories:
+  - Tools
+License: MIT
+Summary: "Pokenads, une application de gestion de crypto pour Pokenads"
+Description: |
+  Pokenads, tx tapper. free.                                                        
+AutoName: false
+Source: "https://github.com/RedGnad/pokenads-01/tree/main"                          
+Commit: "main"                                   
+Build:
+  Gradle:
+    - assembleRelease
