@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:keep="@string/gcm_defaultSenderId,@string/google_storage_bucket,@string/project_id,@string/google_api_key,@string/google_crash_reporting_api_key,@string/google_app_id">
+  <string name="gcm_defaultSenderId" translatable="false">659084392371</string>
+  <string name="google_storage_bucket" translatable="false">pokenads-c58e5.firebasestorage.app</string>
+  <string name="project_id" translatable="false">pokenads-c58e5</string>
+  <string name="google_api_key" translatable="false">AIzaSyAHMpQZkCFhlf7kB5XBoBIfDvkIC8n42O0</string>
+  <string name="google_crash_reporting_api_key" translatable="false">AIzaSyAHMpQZkCFhlf7kB5XBoBIfDvkIC8n42O0</string>
+  <string name="google_app_id" translatable="false">1:659084392371:android:b905a344aaf908ac0f7dc6</string>
+</resources>

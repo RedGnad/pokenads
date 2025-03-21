@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "659084392371",
+    "project_id": "pokenads-c58e5",
+    "storage_bucket": "pokenads-c58e5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:659084392371:android:b905a344aaf908ac0f7dc6",
+        "android_client_info": {
+          "package_name": "com.Pokenads.Pokenads"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAHMpQZkCFhlf7kB5XBoBIfDvkIC8n42O0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

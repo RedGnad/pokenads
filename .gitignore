@@ -1,0 +1,21 @@
+# Fichiers/dossiers de cache et générés par Unity
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Mm]emoryCaptures/
+
+# Fichiers d'IDE et autres outils
+.vscode/
+*.csproj
+*.sln
+*.user
+*.pidb
+*.booproj
+*.svd
+
+# Fichiers spécifiques à certaines plateformes
+*.apk
+*.aab
