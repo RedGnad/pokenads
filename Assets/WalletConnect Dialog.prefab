@@ -1000,7 +1000,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 3b9751ca1cab6914f94e112687674513, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 7bb02b1b8d270114fa77d28d426c8c1c, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1136,7 +1136,7 @@ MonoBehaviour:
   qrCodePadding: 2
   qrCodePanel: {fileID: 5250797132629624297}
   localWalletButtonsPanel: {fileID: 5250797134184570501}
-  localWalletButtonPrefab: {fileID: 4306495276322751919, guid: 074516df5c1aaee4fab155a7d279cb84, type: 3}
+  localWalletButtonPrefab: {fileID: 4306495276322751919, guid: 37f6fa1a984c749d19266badabd4d7d8, type: 3}
   localWalletButtonsContainer: {fileID: 5250797133187018239}
   singleButtonForLocalWalletsPanel: {fileID: 5250797134346826889}
   singleButtonForLocalWallets: {fileID: 7755848000867415513}

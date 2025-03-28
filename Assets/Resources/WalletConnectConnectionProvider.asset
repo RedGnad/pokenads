@@ -27,7 +27,7 @@ MonoBehaviour:
     VerifyUrl: 
   <StoragePath>k__BackingField: wallet-connect/
   <OverrideRegistryUri>k__BackingField: 
-  handlerPrefab: {fileID: 5250797134093199901, guid: 0c7c312ad6c521f4b8346ed8e9d7c664, type: 3}
+  handlerPrefab: {fileID: 5250797134093199901, guid: c225922f673cb45c09ea65726c5f2acc, type: 3}
   enabledWallets: []
   disabledWallets: []
   <LogLevel>k__BackingField: 1
