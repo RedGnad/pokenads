@@ -7,7 +7,7 @@ namespace MyGame.ReactionScreen
     public class LoadingScreenManager : MonoBehaviour
     {
         [SerializeField]
-        private GameObject loadingScreenPanel; // Panneau de chargement assigné dans l'inspecteur
+        private GameObject loadingScreenPanel; 
 
         [SerializeField]
         private float defaultLoadingTime = 3f;

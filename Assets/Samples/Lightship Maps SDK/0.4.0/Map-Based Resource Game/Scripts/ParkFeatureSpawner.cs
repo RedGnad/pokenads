@@ -1,18 +1,29 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
-using System;
+using TMPro;
 
 public class ParkFeatureSpawner : MonoBehaviour
 {
     [SerializeField]
     private GameObject parkFeaturePrefab;
-    // Paramètres d'initialisation habituels
-    [SerializeField]
-    private int numberOfFeatures = 10;
-    [SerializeField]
-    private float spawnRadius = 50f;
 
-    [System.Serializable]
+    [SerializeField]
+    private int numberOfFeatures = 50;
+    [SerializeField]
+    private float spawnRadius = 150f;
+
+    [SerializeField]
+    private int extraFeaturesCount = 7; // Nombre de features spawnées lors d'une utilisation du bouton
+    [SerializeField]
+    private float extraSpawnRadius = 30f; // Rayon d'accès pour les extra spawns
+
+    public static int extraSpawnRemaining = 8;
+
+    [SerializeField]
+    private TextMeshProUGUI extraSpawnCounterText;
+
+    [Serializable]
     public class FeatureData
     {
         public float posX;
@@ -27,29 +38,31 @@ public class ParkFeatureSpawner : MonoBehaviour
             posZ = position.z;
             this.collected = collected;
         }
-    
+
         public Vector3 GetPosition()
         {
             return new Vector3(posX, posY, posZ);
         }
     }
 
-    [System.Serializable]
+    [Serializable]
     public class FeatureDataList
     {
         public List<FeatureData> features = new List<FeatureData>();
     }
 
-    // Liste persistante de features
     private static List<FeatureData> spawnedFeatures = new List<FeatureData>();
+
     private const string FeaturesKey = "ParkFeaturesState";
     private const string ResetDateKey = "FeaturesLastResetDate";
+    private const string ExtraSpawnKey = "ExtraSpawnRemaining";
 
     void Start()
     {
-        DailyResetCheck(); // Réinitialise à minuit UTC si nécessaire
+        DailyResetCheck(); 
         LoadFeatures();
-    
+        UpdateExtraSpawnCounterUI();
+
         if (spawnedFeatures.Count > 0)
         {
             foreach (FeatureData feature in spawnedFeatures)
@@ -64,9 +77,6 @@ public class ParkFeatureSpawner : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Vérifie s'il s'agit d'un nouveau jour UTC. Si oui, réinitialise les features.
-    /// </summary>
     private void DailyResetCheck()
     {
         string todayUTC = DateTime.UtcNow.ToString("yyyy-MM-dd");
@@ -76,14 +86,19 @@ public class ParkFeatureSpawner : MonoBehaviour
         {
             spawnedFeatures.Clear();
             PlayerPrefs.DeleteKey(FeaturesKey);
+
+            extraSpawnRemaining = 8;
+            PlayerPrefs.SetInt(ExtraSpawnKey, extraSpawnRemaining);
+
             PlayerPrefs.SetString(ResetDateKey, todayUTC);
             PlayerPrefs.Save();
         }
+        else
+        {
+            extraSpawnRemaining = PlayerPrefs.GetInt(ExtraSpawnKey, 8);
+        }
     }
 
-    /// <summary>
-    /// Génère les features initiales autour du joueur (avec les paramètres usuels).
-    /// </summary>
     private void SpawnFeaturesAroundPlayer()
     {
         GameObject player = GameObject.FindWithTag("Player");
@@ -102,14 +117,18 @@ public class ParkFeatureSpawner : MonoBehaviour
         SaveFeatures();
     }
 
-    /// <summary>
-    /// Méthode publique pour générer 7 nouvelles features dans un rayon de 30 unités (rayon d'accessibilité) autour du joueur.
-    /// Accessible via un bouton dans l'UI.
-    /// </summary>
     public void SpawnFeaturesExtra()
     {
-        int extraFeaturesCount = 7;
-        float extraSpawnRadius = 30f; // Rayon d'accessibilité
+        if (extraSpawnRemaining <= 0)
+        {
+            Debug.Log("Aucun extra spawn restant pour aujourd'hui.");
+            return;
+        }
+
+        extraSpawnRemaining--; 
+        PlayerPrefs.SetInt(ExtraSpawnKey, extraSpawnRemaining);
+        PlayerPrefs.Save();
+        UpdateExtraSpawnCounterUI();
 
         GameObject player = GameObject.FindWithTag("Player");
         if (player == null)
@@ -127,9 +146,12 @@ public class ParkFeatureSpawner : MonoBehaviour
         SaveFeatures();
     }
 
-    /// <summary>
-    /// Méthode publique pour marquer une feature comme collectée.
-    /// </summary>
+    private void UpdateExtraSpawnCounterUI()
+    {
+        if (extraSpawnCounterText != null)
+            extraSpawnCounterText.text = "Spawn: " + extraSpawnRemaining;
+    }
+
     public static void MarkFeatureCollected(Vector3 featurePosition)
     {
         float tolerance = 1.0f;
@@ -174,6 +196,4 @@ public class ParkFeatureSpawner : MonoBehaviour
             }
         }
     }
-    
-    // Les autres méthodes (ex: SpawnAdditionalFeatures) peuvent être ajoutées si nécessaire.
 }

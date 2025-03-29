@@ -2,26 +2,32 @@ using UnityEngine;
 using UnityEngine.Networking;
 using TMPro;
 using System.Collections;
-using ChainSafe.Gaming.UnityPackage; // Pour accéder à Web3Unity
+using ChainSafe.Gaming.UnityPackage;
 
 public class ScoreDisplayUI : MonoBehaviour
 {
-    // Élément UI pour afficher le score personnalisé
     public TextMeshProUGUI personalizedScoreText;
-    // Délai (en secondes) entre chaque rafraîchissement
     public float refreshInterval = 10f;
-    // Identifiant de votre projet Firestore
     public string projectID = "pokenads-c58e5";
 
     void Start()
     {
+        if (personalizedScoreText != null)
+            personalizedScoreText.text = "Nads: loading";
+
+        StartCoroutine(DelayedRefreshScore());
+
+        InvokeRepeating(nameof(RefreshScore), refreshInterval + 3f, refreshInterval);
+    }
+
+    IEnumerator DelayedRefreshScore()
+    {
+        yield return new WaitForSeconds(3f);
         RefreshScore();
-        InvokeRepeating(nameof(RefreshScore), refreshInterval, refreshInterval);
     }
 
     public void RefreshScore()
     {
-        // Récupère l'adresse du wallet via Web3Unity, comme dans FireboardTest.cs
         string walletAddress = "";
         if (Web3Unity.Instance != null)
         {
@@ -34,7 +40,6 @@ public class ScoreDisplayUI : MonoBehaviour
             return;
         }
 
-        // Construire l'URL pour accéder au document Firestore dans la collection "Scores"
         string url = $"https://firestore.googleapis.com/v1/projects/{projectID}/databases/(default)/documents/Scores/{walletAddress}";
         StartCoroutine(GetScoreCoroutine(url));
     }
@@ -59,14 +64,6 @@ public class ScoreDisplayUI : MonoBehaviour
             string json = request.downloadHandler.text;
             Debug.Log("Réponse Firestore : " + json);
 
-            // Structure JSON attendue :
-            // {
-            //   "fields": {
-            //     "Score": { "integerValue": "42" },
-            //     "User": { "stringValue": "0xABCD..." }
-            //   },
-            //   ...
-            // }
             FirestoreDocument doc = JsonUtility.FromJson<FirestoreDocument>(json);
             int score = 0;
             if (doc != null && doc.fields != null && doc.fields.Score != null)
@@ -75,7 +72,6 @@ public class ScoreDisplayUI : MonoBehaviour
             }
             if (personalizedScoreText != null)
             {
-                // Si le score est inférieur ou égal à 0, affiche "Nads: 0"
                 personalizedScoreText.text = "Nads: " + (score > 0 ? score.ToString() : "0");
             }
         }
@@ -92,7 +88,6 @@ public class FirestoreInteger
 public class FirestoreFields
 {
     public FirestoreInteger Score;
-    // D'autres champs peuvent être ajoutés si nécessaire
 }
 
 [System.Serializable]

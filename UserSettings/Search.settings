@@ -9,7 +9,7 @@ onBoardingDoNotAskAgain = true
 showPackageIndexes = false
 showStatusBar = false
 scopes = {
-	"last_search.66F56946" = "logo_2"
+	"last_search.66F56946" = "font"
 	"OpenInspectorPreview.66F56946" = "0"
 	"currentGroup.66F56946" = "asset"
 }

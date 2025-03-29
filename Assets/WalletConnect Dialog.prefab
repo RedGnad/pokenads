@@ -817,8 +817,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Connect using wallet on this device
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b137a8f4bbcdafc439306c89bed89215, type: 2}
-  m_sharedMaterial: {fileID: 7077468325371864899, guid: b137a8f4bbcdafc439306c89bed89215, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: a705b78b1cba1462b972ad40ef27348a, type: 2}
+  m_sharedMaterial: {fileID: -4877192905436652110, guid: a705b78b1cba1462b972ad40ef27348a, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1849,8 +1849,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Use your mobile device to connect remotely
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b137a8f4bbcdafc439306c89bed89215, type: 2}
-  m_sharedMaterial: {fileID: 7077468325371864899, guid: b137a8f4bbcdafc439306c89bed89215, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: a705b78b1cba1462b972ad40ef27348a, type: 2}
+  m_sharedMaterial: {fileID: -4877192905436652110, guid: a705b78b1cba1462b972ad40ef27348a, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1983,8 +1983,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Connect wallet on this device
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b137a8f4bbcdafc439306c89bed89215, type: 2}
-  m_sharedMaterial: {fileID: 7077468325371864899, guid: b137a8f4bbcdafc439306c89bed89215, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: a705b78b1cba1462b972ad40ef27348a, type: 2}
+  m_sharedMaterial: {fileID: -4877192905436652110, guid: a705b78b1cba1462b972ad40ef27348a, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

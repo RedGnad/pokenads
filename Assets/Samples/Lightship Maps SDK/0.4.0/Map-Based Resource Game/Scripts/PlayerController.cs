@@ -6,7 +6,6 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
-        // Récupère l'Animator sur ce GameObject
         animator = GetComponent<Animator>();
         if (animator == null)
         {
@@ -16,12 +15,10 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        // Récupère l'input horizontal et vertical
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
         Vector3 move = new Vector3(h, 0, v);
 
-        // Si le joueur se déplace, active l'animation de marche
         if (move.magnitude > 0.1f)
         {
             animator.SetBool("isWalking", true);

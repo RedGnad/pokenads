@@ -1,26 +1,21 @@
 using UnityEngine;
 using UnityEngine.Networking;
 using System.Collections;
-using ChainSafe.Gaming.UnityPackage; // Pour accéder à Web3Unity
+using ChainSafe.Gaming.UnityPackage;
 
 public class FirebaseTest : MonoBehaviour
 {
-    // URL de l'endpoint commit pour Firestore
     private string commitUrl = "https://firestore.googleapis.com/v1/projects/pokenads-c58e5/databases/(default)/documents:commit";
     
-    // L'adresse du wallet, récupérée dynamiquement
     private string walletAddress = "";
 
-    // Méthode pour lancer le patch
     public void TestPatchEntry()
     {
-        // Récupérer l'adresse du wallet via Web3Unity
         if (Web3Unity.Instance != null)
         {
             walletAddress = Web3Unity.Instance.PublicAddress;
         }
         
-        // Si le walletAddress est vide, on ne procède pas à la requête
         if (string.IsNullOrEmpty(walletAddress))
         {
             Debug.LogWarning("Wallet non connecté, requête non envoyée.");
@@ -32,12 +27,8 @@ public class FirebaseTest : MonoBehaviour
 
     IEnumerator PatchEntryCoroutine()
     {
-        // Utiliser walletAddress comme identifiant du document dans la collection "Scores"
         string documentName = "projects/pokenads-c58e5/databases/(default)/documents/Scores/" + walletAddress;
 
-        // Préparation du payload JSON pour patcher le document :
-        // - Mettre à jour le champ "User" avec walletAddress.
-        // - Incrémenter le champ "Score" de 20.
         string jsonPayload =
             "{" +
             "  \"writes\": [" +
@@ -66,7 +57,6 @@ public class FirebaseTest : MonoBehaviour
 
         byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonPayload);
 
-        // Affichage des logs pour diagnostic
         Debug.Log("Payload JSON pour patch: " + jsonPayload);
         Debug.Log("Envoi de la requête PATCH vers: " + commitUrl);
 

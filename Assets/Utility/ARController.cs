@@ -34,9 +34,6 @@ public class ARController : MonoBehaviour
         // Vous pouvez ajouter ici la logique de mise-à-jour de la session AR si nécessaire
     }
 
-    /// <summary>
-    /// Active ou désactive la session AR.
-    /// </summary>
     /// <param name="isActive">True pour activer, false pour désactiver</param>
     public void ToggleARSession(bool isActive)
     {
@@ -48,14 +45,12 @@ public class ARController : MonoBehaviour
 
         if (isActive)
         {
-            // Active et réinitialise la session AR
             Debug.Log("Activation de ARSession");
             arSession.enabled = true;
             arSession.Reset();
         }
         else
         {
-            // Désactive la session AR
             Debug.Log("Désactivation de ARSession");
             arSession.enabled = false;
         }

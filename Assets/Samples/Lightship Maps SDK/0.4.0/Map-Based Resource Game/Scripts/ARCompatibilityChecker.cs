@@ -10,10 +10,8 @@ namespace Niantic.Lightship.Maps.Samples.GameSample
 
         IEnumerator Start()
         {
-            // Attendre que ARSession vérifie la disponibilité
             yield return ARSession.CheckAvailability();
 
-            // Selon l'état de ARSession, déterminer la compatibilité
             if (ARSession.state == ARSessionState.Unsupported)
             {
                 IsARCoreSupported = false;
@@ -21,7 +19,6 @@ namespace Niantic.Lightship.Maps.Samples.GameSample
             }
             else
             {
-                // On considère que les autres états indiquent un support acceptable
                 IsARCoreSupported = true;
                 Debug.Log("ARCompatibilityChecker -> ARSession state: " + ARSession.state);
             }

@@ -9,47 +9,39 @@ public class Interaction : MonoBehaviour
     public TextMeshProUGUI scoreText;
     public GameObject retourButton;
     public ParticleSystem particleSystemPrefab;
-    public GameObject vfxPrefab;           // Premier VFX
-    public GameObject extraVfxPrefab;      // Deuxième VFX
-    public GameObject thirdVfxPrefab;      // Troisième VFX
+    public GameObject vfxPrefab;          
+    public GameObject extraVfxPrefab;       
+    public GameObject thirdVfxPrefab;       
     public float thirdVfxDelay = 5f;
 
-    public AudioClip interactionSound;      // Son lancé à chaque interaction
-    public AudioClip disappearanceSound;      // Premier son de disparition
-    public AudioClip secondDisappearanceSound; // Deuxième son de disparition
+    public AudioClip interactionSound;  
+    public AudioClip disappearanceSound;   
+    public AudioClip secondDisappearanceSound; 
 
     private AudioSource audioSource;
     private Collider myCollider;
+
+    public MonsterSpawn monsterSpawnReference;
 
     void Start()
     {
         myCollider = GetComponent<Collider>();
         audioSource = GetComponent<AudioSource>();
         if (audioSource == null)
-        {
-            // Ajoute un AudioSource si l'objet n'en possède pas
             audioSource = gameObject.AddComponent<AudioSource>();
-        }
         if (retourButton != null)
-        {
             retourButton.SetActive(false);
-        }
     }
 
     void Update()
     {
-        // Une fois le score atteint, ne plus gérer d'interaction
         if (score >= 20)
             return;
 
         if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
-        {
             ProcessInput(Input.GetTouch(0).position);
-        }
         else if (Input.GetMouseButtonDown(0))
-        {
             ProcessInput(Input.mousePosition);
-        }
     }
 
     void ProcessInput(Vector3 screenPos)
@@ -60,57 +52,43 @@ public class Interaction : MonoBehaviour
         {
             if (hit.transform == transform)
             {
-                // Son d'interaction
                 if (interactionSound != null && audioSource != null)
-                {
                     audioSource.PlayOneShot(interactionSound);
-                }
 
                 score++;
                 if (scoreText != null)
-                {
                     scoreText.text = "Score : " + score;
-                }
 
                 if (score >= 20)
                 {
                     if (GameManager.Instance != null)
-                    {
                         GameManager.Instance.AddScore(20);
-                    }
                     if (retourButton != null)
-                    {
                         retourButton.SetActive(true);
-                    }
-                    // Instanciation du premier VFX
+
                     if (vfxPrefab != null)
                     {
                         GameObject vfx = Instantiate(vfxPrefab, transform.position, Quaternion.identity);
                         Destroy(vfx, 5f);
                     }
-                    // Instanciation du deuxième VFX
                     if (extraVfxPrefab != null)
                     {
                         GameObject extraVfx = Instantiate(extraVfxPrefab, transform.position, Quaternion.identity);
                         Destroy(extraVfx, 5f);
                     }
-                    // Lancement d'une coroutine pour déclencher le troisième VFX après délai
                     StartCoroutine(SpawnThirdVfx());
 
-                    // Jouer les sons de disparition
                     if (disappearanceSound != null)
-                    {
                         AudioSource.PlayClipAtPoint(disappearanceSound, transform.position);
-                    }
                     if (secondDisappearanceSound != null)
-                    {
                         AudioSource.PlayClipAtPoint(secondDisappearanceSound, transform.position);
-                    }
-                    
-                    // Délai de 5 secondes et vérification de capture via le CaptureManager
-                    CaptureManager.CheckCapture(5f);
-                    
-                    // Désactivation de l'objet (les VFX et la capture continueront via CaptureManager)
+
+                    string monsterType = "unknown";
+                    if (monsterSpawnReference != null)
+                        monsterType = monsterSpawnReference.selectedMonster.ToString();
+
+                    CaptureManager.CheckCapture(5f, monsterType);
+
                     gameObject.SetActive(false);
                 }
 

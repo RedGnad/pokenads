@@ -2,21 +2,18 @@ using UnityEngine;
 using Firebase.Firestore;
 using Firebase.Extensions;
 using System.Collections.Generic;
-using ChainSafe.Gaming.UnityPackage; // Pour accéder à Web3Unity
+using ChainSafe.Gaming.UnityPackage;
 
 public class ScoreManager : MonoBehaviour
 {
-    // Méthode appelée par le bouton pour mettre à jour le score.
     public void UpdatePlayerScore()
     {
-        // Vérifier que Firestore est prêt.
         if (FirebaseInitializer.FirestoreDb == null)
         {
             Debug.LogWarning("Firebase Firestore n'est pas encore initialisé.");
             return;
         }
 
-        // Récupérer l'adresse du wallet via Web3Unity.
         string walletAddress = Web3Unity.Instance?.PublicAddress;
         if (string.IsNullOrEmpty(walletAddress))
         {
@@ -24,10 +21,8 @@ public class ScoreManager : MonoBehaviour
             return;
         }
 
-        // Utiliser l'adresse du wallet comme ID de document dans la collection "Scores".
         DocumentReference docRef = FirebaseInitializer.FirestoreDb.Collection("Scores").Document(walletAddress);
 
-        // Exécuter une transaction pour mettre à jour le score de manière atomique.
         FirebaseInitializer.FirestoreDb.RunTransactionAsync(transaction =>
         {
             return transaction.GetSnapshotAsync(docRef).ContinueWithOnMainThread(task =>
@@ -39,7 +34,6 @@ public class ScoreManager : MonoBehaviour
                     currentScore = snapshot.GetValue<int>("Score");
                 }
 
-                // Incrémente le score de 20 points.
                 Dictionary<string, object> updates = new Dictionary<string, object>
                 {
                     { "User", walletAddress },

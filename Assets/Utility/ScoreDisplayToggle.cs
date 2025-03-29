@@ -1,6 +1,6 @@
 using UnityEngine;
 using TMPro;
-using ChainSafe.Gaming.UnityPackage; // Pour accéder à Web3Unity
+using ChainSafe.Gaming.UnityPackage; 
 
 public class WalletDisplayToggle : MonoBehaviour
 {
@@ -9,7 +9,6 @@ public class WalletDisplayToggle : MonoBehaviour
 
     void Start()
     {
-        // Vérifie toutes les 1 seconde si le wallet est renseigné
         InvokeRepeating(nameof(ToggleDisplay), 0f, 1f);
     }
 
@@ -21,7 +20,6 @@ public class WalletDisplayToggle : MonoBehaviour
 
         if (!string.IsNullOrEmpty(walletAddress))
         {
-            // Si wallet renseigné : afficher connectedTMP et masquer disconnectedTMP
             if (connectedTMP != null && !connectedTMP.gameObject.activeSelf)
                 connectedTMP.gameObject.SetActive(true);
             if (disconnectedTMP != null && disconnectedTMP.gameObject.activeSelf)
@@ -29,7 +27,6 @@ public class WalletDisplayToggle : MonoBehaviour
         }
         else
         {
-            // Sinon, afficher disconnectedTMP et masquer connectedTMP
             if (connectedTMP != null && connectedTMP.gameObject.activeSelf)
                 connectedTMP.gameObject.SetActive(false);
             if (disconnectedTMP != null && !disconnectedTMP.gameObject.activeSelf)

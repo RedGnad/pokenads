@@ -10,7 +10,6 @@ namespace Niantic.Lightship.Maps.Samples.GameSample
         [SerializeField]
         private GameObject floatingTextPrefab;
 
-        // Optionnel : un prefab spécifique pour "too far"
         [SerializeField]
         private GameObject tooFarTextPrefab;
         
@@ -22,7 +21,6 @@ namespace Niantic.Lightship.Maps.Samples.GameSample
             Instance = this;
         }
 
-        // Affiche 'text' à la position indiquée et détruit le cloné après 2 secondes
         public void ShowText(string text, Vector3 position)
         {
             if (!enableFloatingText)

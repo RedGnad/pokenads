@@ -26,7 +26,7 @@ namespace Niantic.Lightship.Maps.Samples.GameSample
             {
                 Debug.Log("ARCore non supporté. Redirection vers l'écran sans AR.");
                 SceneTransitionData.LoadingTime = 1f;
-                SceneManager.LoadScene("NonCameraFeedScene"); // Remplacez par le nom de votre scène sans AR
+                SceneManager.LoadScene("NonCameraFeedScene");
             }
         }
 
