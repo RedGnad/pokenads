@@ -1,57 +1,61 @@
 using UnityEngine;
 using Firebase.Firestore;
 using Firebase.Extensions;
-using System.Collections.Generic;
-using ChainSafe.Gaming.UnityPackage;
 
 public class ScoreManager : MonoBehaviour
 {
-    public void UpdatePlayerScore()
+    public static ScoreManager Instance;
+    private const string TEMP_SCORE_KEY = "TempNadsScore";
+
+    void Awake()
     {
-        if (FirebaseInitializer.FirestoreDb == null)
+        if (Instance == null)
         {
-            Debug.LogWarning("Firebase Firestore n'est pas encore initialisé.");
-            return;
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
         }
-
-        string walletAddress = Web3Unity.Instance?.PublicAddress;
-        if (string.IsNullOrEmpty(walletAddress))
+        else
         {
-            Debug.LogWarning("Wallet non connecté");
-            return;
+            Destroy(gameObject);
         }
+    }
 
-        DocumentReference docRef = FirebaseInitializer.FirestoreDb.Collection("Scores").Document(walletAddress);
+    /// <summary>
+    /// À appeler quand le combat est terminé pour attribuer 20 points.
+    /// </summary>
+    public void OnCombatFinished()
+    {
+        // Écrase la valeur précédente au lieu de cumuler
+        PlayerPrefs.SetInt(TEMP_SCORE_KEY, 20);
+        PlayerPrefs.Save();
 
-        FirebaseInitializer.FirestoreDb.RunTransactionAsync(transaction =>
+        // Lance la mise à jour Firestore
+        UpdateFirestoreScore(20);
+    }
+
+    private void UpdateFirestoreScore(int pointsToAdd)
+    {
+        string addr = WalletManager.CurrentWalletAddress;
+        if (string.IsNullOrEmpty(addr)) return;
+
+        var db = FirebaseFirestore.DefaultInstance;
+        var docRef = db.Collection("Scores").Document(addr);
+
+        // <<< CHANGEMENT MINIMAL >>>
+        // Utiliser UpdateAsync au lieu de Update
+        docRef.UpdateAsync("Score", FieldValue.Increment(pointsToAdd))
+              .ContinueWithOnMainThread(task =>
         {
-            return transaction.GetSnapshotAsync(docRef).ContinueWithOnMainThread(task =>
+            if (task.IsCompleted && !task.IsFaulted)
             {
-                DocumentSnapshot snapshot = task.Result;
-                int currentScore = 0;
-                if (snapshot.Exists && snapshot.ContainsField("Score"))
-                {
-                    currentScore = snapshot.GetValue<int>("Score");
-                }
-
-                Dictionary<string, object> updates = new Dictionary<string, object>
-                {
-                    { "User", walletAddress },
-                    { "Score", currentScore + 20 }
-                };
-
-                transaction.Set(docRef, updates, SetOptions.MergeAll);
-                return true;
-            });
-        }).ContinueWithOnMainThread(task =>
-        {
-            if (task.Exception != null)
-            {
-                Debug.LogError("Erreur lors de la mise à jour du score : " + task.Exception);
+                // Suppression du TempNadsScore dès que Firestore a pris en compte l'incrément
+                PlayerPrefs.DeleteKey(TEMP_SCORE_KEY);
+                PlayerPrefs.Save();
+                Debug.Log("[ScoreManager] Firestore mis à jour +20, TempNadsScore purgé");
             }
             else
             {
-                Debug.Log("Score mis à jour avec succès.");
+                Debug.LogWarning("[ScoreManager] Échec update Firestore : " + task.Exception);
             }
         });
     }

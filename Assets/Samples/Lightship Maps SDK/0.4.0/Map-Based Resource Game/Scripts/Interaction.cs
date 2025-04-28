@@ -62,7 +62,16 @@ public class Interaction : MonoBehaviour
                 if (score >= 20)
                 {
                     if (GameManager.Instance != null)
+                    {
                         GameManager.Instance.AddScore(20);
+                        
+                        // MODIFICATION: Sauvegarder le score immédiatement
+                        PlayerPrefs.SetInt("TempNadsScore", GameManager.Instance.generalScore);
+                        PlayerPrefs.SetString("LastScoreTimestamp", System.DateTime.Now.ToString());
+                        PlayerPrefs.Save();
+                        Debug.Log("Score anticipé sauvegardé: " + GameManager.Instance.generalScore);
+                    }
+                    
                     if (retourButton != null)
                         retourButton.SetActive(true);
 
@@ -112,8 +121,28 @@ public class Interaction : MonoBehaviour
         }
     }
 
+    // Méthode modifiée pour vérifier si le score est déjà enregistré
     public void RetourEcranPrincipal()
     {
+        // MODIFICATION: Vérifier si le score est déjà enregistré
+        if (!PlayerPrefs.HasKey("TempNadsScore"))
+        {
+            // Si ce n'est pas le cas, l'enregistrer maintenant
+            if (GameManager.Instance != null)
+            {
+                PlayerPrefs.SetInt("TempNadsScore", GameManager.Instance.generalScore);
+                PlayerPrefs.SetString("LastScoreTimestamp", System.DateTime.Now.ToString());
+                PlayerPrefs.Save();
+                Debug.Log("Score sauvegardé avant changement de scène: " + GameManager.Instance.generalScore);
+            }
+        }
+        else
+        {
+            Debug.Log("Score déjà enregistré, utilisation de la valeur existante: " + 
+                     PlayerPrefs.GetInt("TempNadsScore"));
+        }
+        
+        // Charger la scène comme avant
         SceneManager.LoadScene(0);
     }
 }

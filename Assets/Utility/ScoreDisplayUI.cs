@@ -1,8 +1,8 @@
-using UnityEngine;
-using UnityEngine.Networking;
-using TMPro;
 using System.Collections;
-using ChainSafe.Gaming.UnityPackage;
+using UnityEngine;
+using TMPro;
+using UnityEngine.Networking;
+using Reown.AppKit.Unity; // ou le namespace où se trouve votre WalletManager
 
 public class ScoreDisplayUI : MonoBehaviour
 {
@@ -10,43 +10,98 @@ public class ScoreDisplayUI : MonoBehaviour
     public float refreshInterval = 10f;
     public string projectID = "pokenads-c58e5";
 
-    void Start()
+    private const string TEMP_SCORE_KEY      = "TempNadsScore";
+    private const string FIRESTORE_SCORE_KEY = "FirestoreScore";
+    private const string DISPLAY_TEXT_KEY    = "CurrentNadsDisplay";
+
+    private int lastKnownFirestoreScore = 0;
+
+    void Awake()
     {
-        if (personalizedScoreText != null)
-            personalizedScoreText.text = "Nads: loading";
-
-        StartCoroutine(DelayedRefreshScore());
-
-        InvokeRepeating(nameof(RefreshScore), refreshInterval + 3f, refreshInterval);
+        if (PlayerPrefs.HasKey(TEMP_SCORE_KEY) && personalizedScoreText != null)
+        {
+            int tempScore = PlayerPrefs.GetInt(TEMP_SCORE_KEY);
+            int baseScore = PlayerPrefs.GetInt(FIRESTORE_SCORE_KEY, 0);
+            personalizedScoreText.text = "Nads: " + (baseScore + tempScore);
+            PlayerPrefs.SetString(DISPLAY_TEXT_KEY, personalizedScoreText.text);
+            PlayerPrefs.Save();
+        }
+        else if (PlayerPrefs.HasKey(DISPLAY_TEXT_KEY) && personalizedScoreText != null)
+        {
+            personalizedScoreText.text = PlayerPrefs.GetString(DISPLAY_TEXT_KEY);
+        }
     }
 
-    IEnumerator DelayedRefreshScore()
+    void OnEnable()
     {
-        yield return new WaitForSeconds(3f);
-        RefreshScore();
+        WalletManager.OnWalletAddressChanged += HandleWalletChanged;
+    }
+
+    void OnDisable()
+    {
+        WalletManager.OnWalletAddressChanged -= HandleWalletChanged;
+    }
+
+    void Start()
+    {
+        // initialisation & premier refresh
+        if (!PlayerPrefs.HasKey(DISPLAY_TEXT_KEY) && personalizedScoreText != null)
+        {
+            personalizedScoreText.text = "Nads: loading";
+            int total = PlayerPrefs.GetInt(TEMP_SCORE_KEY, 0) + PlayerPrefs.GetInt(FIRESTORE_SCORE_KEY, 0);
+            if (total > 0)
+            {
+                personalizedScoreText.text = "Nads: " + total;
+                PlayerPrefs.SetString(DISPLAY_TEXT_KEY, personalizedScoreText.text);
+                PlayerPrefs.Save();
+            }
+            else
+            {
+                Invoke("RefreshScore", 1f);
+            }
+        }
+
+        InvokeRepeating("RefreshScore", refreshInterval, refreshInterval);
+
+        // NOUVEAU : si on est déjà déconnecté, on arrête tout et remise à zéro
+        if (string.IsNullOrEmpty(WalletManager.CurrentWalletAddress))
+        {
+            CancelInvoke("RefreshScore");
+            if (personalizedScoreText != null)
+                personalizedScoreText.text = "Nads: 0";
+        }
+    }
+
+    private void HandleWalletChanged(string walletAddress)
+    {
+        if (string.IsNullOrEmpty(walletAddress))
+        {
+            // déconnecté
+            CancelInvoke("RefreshScore");
+            if (personalizedScoreText != null)
+                personalizedScoreText.text = "Nads: 0";
+        }
+        else
+        {
+            // reconnecté
+            RefreshScore();
+            InvokeRepeating("RefreshScore", refreshInterval, refreshInterval);
+        }
     }
 
     public void RefreshScore()
     {
-        string walletAddress = "";
-        if (Web3Unity.Instance != null)
-        {
-            walletAddress = Web3Unity.Instance.PublicAddress;
-        }
-        if (string.IsNullOrEmpty(walletAddress))
-        {
-            if (personalizedScoreText != null)
-                personalizedScoreText.text = "Nads: loading";
+        var addr = WalletManager.CurrentWalletAddress;
+        if (string.IsNullOrEmpty(addr))
             return;
-        }
 
-        string url = $"https://firestore.googleapis.com/v1/projects/{projectID}/databases/(default)/documents/Scores/{walletAddress}";
+        string url = $"https://firestore.googleapis.com/v1/projects/{projectID}/databases/(default)/documents/Scores/{addr}";
         StartCoroutine(GetScoreCoroutine(url));
     }
 
     IEnumerator GetScoreCoroutine(string url)
     {
-        UnityWebRequest request = UnityWebRequest.Get(url);
+        var request = UnityWebRequest.Get(url);
         yield return request.SendWebRequest();
 
 #if UNITY_2020_1_OR_NEWER
@@ -55,43 +110,70 @@ public class ScoreDisplayUI : MonoBehaviour
         if (request.isNetworkError || request.isHttpError)
 #endif
         {
-            Debug.LogError("Erreur lors de la récupération du score : " + request.error);
-            if (personalizedScoreText != null)
-                personalizedScoreText.text = "Nads: loading";
+            // en cas d’erreur réseau, on ne change rien (ou on garde loading → 0)
+            if (personalizedScoreText != null && personalizedScoreText.text == "Nads: loading")
+                personalizedScoreText.text = "Nads: 0";
         }
         else
         {
             string json = request.downloadHandler.text;
-            Debug.Log("Réponse Firestore : " + json);
+            int fsScore = 0;
+            bool found = false;
 
-            FirestoreDocument doc = JsonUtility.FromJson<FirestoreDocument>(json);
-            int score = 0;
-            if (doc != null && doc.fields != null && doc.fields.Score != null)
+            int idx = json.IndexOf("\"Score\":{\"integerValue\":\"");
+            if (idx > 0)
             {
-                int.TryParse(doc.fields.Score.integerValue, out score);
+                idx += "\"Score\":{\"integerValue\":\"".Length;
+                int end = json.IndexOf("\"", idx);
+                if (end > idx && int.TryParse(json.Substring(idx, end - idx), out fsScore))
+                    found = true;
             }
-            if (personalizedScoreText != null)
+
+            if (!found)
             {
-                personalizedScoreText.text = "Nads: " + (score > 0 ? score.ToString() : "0");
+                try
+                {
+                    var doc = JsonUtility.FromJson<FirestoreDocument>(json);
+                    if (doc?.fields?.Score != null &&
+                        int.TryParse(doc.fields.Score.integerValue, out fsScore))
+                        found = true;
+                }
+                catch { }
+            }
+
+            if (found)
+            {
+                int old = lastKnownFirestoreScore;
+                lastKnownFirestoreScore = fsScore;
+                PlayerPrefs.SetInt(FIRESTORE_SCORE_KEY, fsScore);
+
+                int sessionPts = PlayerPrefs.GetInt(TEMP_SCORE_KEY, 0);
+                if (fsScore >= old + sessionPts)
+                    PlayerPrefs.SetInt(TEMP_SCORE_KEY, 0);
+
+                int total = fsScore + PlayerPrefs.GetInt(TEMP_SCORE_KEY, 0);
+                if (personalizedScoreText != null)
+                {
+                    var disp = "Nads: " + total;
+                    personalizedScoreText.text = disp;
+                    PlayerPrefs.SetString(DISPLAY_TEXT_KEY, disp);
+                }
+                PlayerPrefs.Save();
+            }
+            else if (personalizedScoreText != null && personalizedScoreText.text == "Nads: loading")
+            {
+                personalizedScoreText.text = "Nads: 0";
+                PlayerPrefs.SetString(DISPLAY_TEXT_KEY, personalizedScoreText.text);
+                PlayerPrefs.Save();
             }
         }
     }
 }
 
+// JSON helper classes
 [System.Serializable]
-public class FirestoreInteger
-{
-    public string integerValue;
-}
-
+public class FirestoreDocument { public FirestoreFields fields; }
 [System.Serializable]
-public class FirestoreFields
-{
-    public FirestoreInteger Score;
-}
-
+public class FirestoreFields { public FirestoreIntegerValue Score; }
 [System.Serializable]
-public class FirestoreDocument
-{
-    public FirestoreFields fields;
-}
+public class FirestoreIntegerValue { public string integerValue; }

@@ -7,6 +7,7 @@ public class InventoryUI : MonoBehaviour
     
     public TextMeshProUGUI mouchCountText;
     public TextMeshProUGUI chogCountText;
+    public TextMeshProUGUI moyakiCountText;
 
     void Start()
     {
@@ -31,16 +32,22 @@ public class InventoryUI : MonoBehaviour
         {
             int mouchCount = 0;
             int chogCount = 0;
+            int moyakiCount = 0;
             int count;
+            
             if (GameManager.Instance.capturedMonsters.TryGetValue("Mouch", out count))
                 mouchCount = count;
             if (GameManager.Instance.capturedMonsters.TryGetValue("Chog", out count))
                 chogCount = count;
+            if (GameManager.Instance.capturedMonsters.TryGetValue("Moyaki", out count))
+                moyakiCount = count;
 
             if (mouchCountText != null)
                 mouchCountText.text = "Mouch : " + mouchCount;
             if (chogCountText != null)
                 chogCountText.text = "Skibidi Chog : " + chogCount;
+            if (moyakiCountText != null)
+                moyakiCountText.text = "Moyaki : " + moyakiCount;
         }
     }
 }

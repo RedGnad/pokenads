@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.Networking;
 using System.Collections;
-using ChainSafe.Gaming.UnityPackage; // Assurez-vous que ce using fonctionne ici
+// Supprimé: using ChainSafe.Gaming.UnityPackage;
 
 public class StandalonePostRequest : MonoBehaviour
 {
@@ -38,14 +38,8 @@ public class StandalonePostRequest : MonoBehaviour
             {
                 Debug.Log("Tap détecté sur " + gameObject.name);
 
-                if (Web3Unity.Instance == null)
-                {
-                    Debug.LogError("Web3Unity.Instance est null ! Vérifiez son initialisation dans la scène.");
-                    return;
-                }
-
-                walletAddress = Web3Unity.Instance.PublicAddress;
-                Debug.Log("Wallet address: " + walletAddress);
+                walletAddress = WalletManager.CurrentWalletAddress;
+                Debug.Log("Wallet address from Reown AppKit: " + walletAddress);
                 
                 if (!string.IsNullOrEmpty(walletAddress))
                 {

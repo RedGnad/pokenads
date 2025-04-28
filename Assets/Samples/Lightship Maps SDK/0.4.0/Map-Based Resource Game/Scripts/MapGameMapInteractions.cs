@@ -25,8 +25,22 @@ namespace Niantic.Lightship.Maps.Samples.GameSample
         [SerializeField]
         private LayerGameObjectPlacement _strongholdSpawner;
 
+        // Nouvelles variables pour le son de distance
+        [Header("Distance Sound")]
+        [SerializeField] private AudioClip tooFarSound;
+        private AudioSource audioSource;
+
         private MapGameState.StructureType _placingStructureType;
         private bool _placingStructure;
+
+        private void Awake()
+        {
+            // Initialiser l'AudioSource
+            audioSource = GetComponent<AudioSource>();
+            if (audioSource == null)
+                audioSource = gameObject.AddComponent<AudioSource>();
+            audioSource.playOnAwake = false;
+        }
 
         public void StartPlacingStructure(MapGameState.StructureType structureType)
         {
@@ -128,6 +142,14 @@ namespace Niantic.Lightship.Maps.Samples.GameSample
 
             if (amount == 0)
             {
+                // Le joueur est trop loin - jouer le son
+                if (audioSource != null && tooFarSound != null)
+                {
+                    audioSource.PlayOneShot(tooFarSound);
+                    Debug.Log("Ressource trop éloignée - Son joué");
+                }
+                
+                // Afficher le texte flottant existant
                 var floatingTextPosition = hitInfo.point + Vector3.up * 20.0f;
                 var forward = floatingTextPosition - _mapCamera.transform.position;
                 var rotation = Quaternion.LookRotation(forward, Vector3.up);

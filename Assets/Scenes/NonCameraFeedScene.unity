@@ -122,6 +122,85 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &109959847 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5698839685301813347, guid: 614950dbd1dd14ff59283b6ba556bdf7, type: 3}
+  m_PrefabInstance: {fileID: 1107554404}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &109959848
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 109959847}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4483e513eaad84e749d2d038f18835bc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  centerPoint: {fileID: 0}
+  cameraTarget: {fileID: 0}
+  radius: 2
+  moveSpeed: 1
+--- !u!114 &109959849
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 109959847}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f38c19c50b6d444881138651bf08c6a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  relayerUrl: https://relay-943qhmvwm-redgnads-projects.vercel.app/api/relayInteraction
+--- !u!114 &109959850
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 109959847}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ef4beddffadb445eb1fed5b79815e21, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  score: 0
+  scoreText: {fileID: 1857853862}
+  retourButton: {fileID: 1423854213}
+  particleSystemPrefab: {fileID: 4421013621074360097, guid: 5ae1fac9b4f18428dad9e2fd7e4dc5c2, type: 3}
+  vfxPrefab: {fileID: 5824670795371433373, guid: f6fd568b816c64943a44efc3add3a881, type: 3}
+  extraVfxPrefab: {fileID: 2708598583397607911, guid: 6398d43fe79ea0140913dc5530c646af, type: 3}
+  thirdVfxPrefab: {fileID: 5112403345868107898, guid: 6f34ef0d986e9db4199cf75805f79753, type: 3}
+  thirdVfxDelay: 5
+  interactionSound: {fileID: 8300000, guid: 7e27bda15b41749318166300a243dc52, type: 3}
+  disappearanceSound: {fileID: 8300000, guid: 7b4c8c28426764a7685e8a1282218743, type: 3}
+  secondDisappearanceSound: {fileID: 8300000, guid: ea5de572a6e2a4a1cab556c582394329, type: 3}
+  monsterSpawnReference: {fileID: 2056834492}
+--- !u!135 &109959851
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 109959847}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 13.885623
+  m_Center: {x: 2.6026964, y: 0.1032424, z: 0.39998293}
 --- !u!1 &308348744
 GameObject:
   m_ObjectHideFlags: 0
@@ -1259,6 +1338,91 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: afbe22c1776e940bcb85395fbd15830e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1001 &1107554404
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 4926243292537952985, guid: 614950dbd1dd14ff59283b6ba556bdf7, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.14297949
+      objectReference: {fileID: 0}
+    - target: {fileID: 4926243292537952985, guid: 614950dbd1dd14ff59283b6ba556bdf7, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.14297949
+      objectReference: {fileID: 0}
+    - target: {fileID: 4926243292537952985, guid: 614950dbd1dd14ff59283b6ba556bdf7, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.14297949
+      objectReference: {fileID: 0}
+    - target: {fileID: 4926243292537952985, guid: 614950dbd1dd14ff59283b6ba556bdf7, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 14.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 4926243292537952985, guid: 614950dbd1dd14ff59283b6ba556bdf7, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -6.3138
+      objectReference: {fileID: 0}
+    - target: {fileID: 4926243292537952985, guid: 614950dbd1dd14ff59283b6ba556bdf7, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 12.32
+      objectReference: {fileID: 0}
+    - target: {fileID: 4926243292537952985, guid: 614950dbd1dd14ff59283b6ba556bdf7, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.68689954
+      objectReference: {fileID: 0}
+    - target: {fileID: 4926243292537952985, guid: 614950dbd1dd14ff59283b6ba556bdf7, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4926243292537952985, guid: 614950dbd1dd14ff59283b6ba556bdf7, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.72675234
+      objectReference: {fileID: 0}
+    - target: {fileID: 4926243292537952985, guid: 614950dbd1dd14ff59283b6ba556bdf7, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4926243292537952985, guid: 614950dbd1dd14ff59283b6ba556bdf7, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4926243292537952985, guid: 614950dbd1dd14ff59283b6ba556bdf7, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: -93.23
+      objectReference: {fileID: 0}
+    - target: {fileID: 4926243292537952985, guid: 614950dbd1dd14ff59283b6ba556bdf7, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4926243292537952985, guid: 614950dbd1dd14ff59283b6ba556bdf7, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5698839685301813347, guid: 614950dbd1dd14ff59283b6ba556bdf7, type: 3}
+      propertyPath: m_Name
+      value: moyaki3
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5698839685301813347, guid: 614950dbd1dd14ff59283b6ba556bdf7, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 109959851}
+    - targetCorrespondingSourceObject: {fileID: 5698839685301813347, guid: 614950dbd1dd14ff59283b6ba556bdf7, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 109959850}
+    - targetCorrespondingSourceObject: {fileID: 5698839685301813347, guid: 614950dbd1dd14ff59283b6ba556bdf7, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 109959849}
+    - targetCorrespondingSourceObject: {fileID: 5698839685301813347, guid: 614950dbd1dd14ff59283b6ba556bdf7, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 109959848}
+  m_SourcePrefab: {fileID: 100100000, guid: 614950dbd1dd14ff59283b6ba556bdf7, type: 3}
 --- !u!1001 &1203623101
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2497,6 +2661,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mouchModel: {fileID: 760737400}
   chogModel: {fileID: 1805600116}
+  moyakiModel: {fileID: 109959847}
   captureDelay: 5
   selectedMonster: 0
 --- !u!1001 &1177232590894603736
@@ -2568,6 +2733,7 @@ SceneRoots:
   - {fileID: 1218900518}
   - {fileID: 760737399}
   - {fileID: 1736994058}
+  - {fileID: 1107554404}
   - {fileID: 826060024}
   - {fileID: 1295165495}
   - {fileID: 965448536}

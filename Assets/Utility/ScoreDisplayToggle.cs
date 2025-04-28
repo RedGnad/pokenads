@@ -1,36 +1,44 @@
 using UnityEngine;
 using TMPro;
-using ChainSafe.Gaming.UnityPackage; 
+using Reown.AppKit.Unity; // pour WalletManager
 
-public class WalletDisplayToggle : MonoBehaviour
+/// <summary>
+/// Affiche le texte « Nads: X » quand le wallet est connecté,
+/// ou le texte « Score : 0 » quand il est déconnecté.
+/// </summary>
+public class ScoreDisplayToggle : MonoBehaviour
 {
-    public TextMeshProUGUI connectedTMP;
-    public TextMeshProUGUI disconnectedTMP;
+    [Header("Drag & drop vos deux TextMeshProUGUI")]
+    public TextMeshProUGUI personalizedTMP;   // « Nads: X »
+    public TextMeshProUGUI generalTMP;        // « Score : 0 »
 
     void Start()
     {
-        InvokeRepeating(nameof(ToggleDisplay), 0f, 1f);
+        // Si vous ne les avez pas assignés, on tente de les trouver par nom
+        if (personalizedTMP == null)
+        {
+            var go = GameObject.Find("PersonalizedScoreText");
+            if (go != null) personalizedTMP = go.GetComponent<TextMeshProUGUI>();
+        }
+        if (generalTMP == null)
+        {
+            var go = GameObject.Find("GeneralScoreText");
+            if (go != null) generalTMP = go.GetComponent<TextMeshProUGUI>();
+        }
+
+        if (personalizedTMP == null || generalTMP == null)
+            Debug.LogWarning("[ScoreDisplayToggle] Pensez à assigner vos deux TMP en Inspector !");
     }
 
-    public void ToggleDisplay()
+    void Update()
     {
-        string walletAddress = "";
-        if (Web3Unity.Instance != null)
-            walletAddress = Web3Unity.Instance.PublicAddress;
+        // Polling à chaque frame
+        bool connected = !string.IsNullOrEmpty(WalletManager.CurrentWalletAddress);
 
-        if (!string.IsNullOrEmpty(walletAddress))
-        {
-            if (connectedTMP != null && !connectedTMP.gameObject.activeSelf)
-                connectedTMP.gameObject.SetActive(true);
-            if (disconnectedTMP != null && disconnectedTMP.gameObject.activeSelf)
-                disconnectedTMP.gameObject.SetActive(false);
-        }
-        else
-        {
-            if (connectedTMP != null && connectedTMP.gameObject.activeSelf)
-                connectedTMP.gameObject.SetActive(false);
-            if (disconnectedTMP != null && !disconnectedTMP.gameObject.activeSelf)
-                disconnectedTMP.gameObject.SetActive(true);
-        }
+        if (personalizedTMP != null)
+            personalizedTMP.gameObject.SetActive(connected);
+
+        if (generalTMP != null)
+            generalTMP.gameObject.SetActive(!connected);
     }
 }

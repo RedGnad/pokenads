@@ -1,0 +1,285 @@
+using UnityEngine;
+using TMPro;
+using Reown.AppKit.Unity;
+using System;
+using System.Collections;
+
+public class WalletAddressDisplay : MonoBehaviour
+{
+    [Header("Configuration")]
+    [SerializeField] private bool showFullAddress = false;
+    [SerializeField] private string prefix = "Wallet: ";
+    [SerializeField] private string notConnectedText = "Non connecté";
+    [SerializeField] private float refreshInterval = 2.0f;
+    
+    [Header("Style")]
+    [SerializeField] private Color connectedColor = Color.green;
+    [SerializeField] private Color disconnectedColor = Color.gray;
+    
+    [Header("Position")]
+    [SerializeField] private bool positionnerEnHautADroite = true;
+    [SerializeField] private float margeHorizontale = 20f;
+    [SerializeField] private float margeVerticale = 20f;
+    [Tooltip("Décalage supplémentaire depuis le bord droit")]
+    [SerializeField] private float decalageHorizontal = 0f;
+    [Tooltip("Décalage supplémentaire depuis le haut")]
+    [SerializeField] private float decalageVertical = 0f;
+    
+    [Header("Ancrage alternatif")]
+    [Tooltip("Utiliser un autre coin pour l'ancrage du texte")]
+    [SerializeField] private AnchorPosition positionAncrage = AnchorPosition.HautDroite;
+    
+    private TextMeshProUGUI addressText;
+    private string walletAddress = "";
+    private float updateTimer = 0f;
+    private RectTransform rectTransform;
+    
+    // Pour gérer la détection des changements de connexion
+    private bool wasConnected = false;
+    
+    public enum AnchorPosition
+    {
+        HautDroite,
+        HautGauche,
+        BasDroite,
+        BasGauche,
+        Centre
+    }
+    
+    void Awake()
+    {
+        rectTransform = GetComponent<RectTransform>();
+        addressText = GetComponent<TextMeshProUGUI>();
+        if (addressText == null)
+        {
+            Debug.LogError("WalletAddressDisplay: TextMeshProUGUI composant non trouvé sur cet objet!");
+        }
+        
+        if (positionnerEnHautADroite && rectTransform != null)
+        {
+            RepositionnerTexte();
+        }
+    }
+    
+    void Start()
+    {
+        // Vérifier AppKit et s'abonner aux événements quand AppKit est prêt
+        StartCoroutine(WaitForAppKit());
+        
+        // Commencer le polling pour les mises à jour
+        InvokeRepeating("UpdateWalletAddress", 0.5f, refreshInterval);
+    }
+    
+    private IEnumerator WaitForAppKit()
+    {
+        // Attendre que AppKit soit initialisé
+        while (AppKit.Instance == null || !AppKit.Instance.IsInitialized)
+        {
+            yield return new WaitForSeconds(0.5f);
+        }
+        
+        Debug.Log("WalletAddressDisplay: AppKit est initialisé, configuration des écouteurs");
+        
+        try
+        {
+            // S'abonner aux événements comme un fallback
+            // Note: Ces événements peuvent ne pas exister dans votre version d'AppKit,
+            // c'est pourquoi nous utilisons aussi un système de polling
+            
+            // Version compatible avec les événements génériques
+            var type = AppKit.Instance.GetType();
+            var connectedEvent = type.GetEvent("OnConnected");
+            var disconnectedEvent = type.GetEvent("OnDisconnected");
+            
+            if (connectedEvent != null && disconnectedEvent != null)
+            {
+                Debug.Log("WalletAddressDisplay: Événements OnConnected et OnDisconnected trouvés");
+                // L'abonnement se fait automatiquement via le polling
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning($"WalletAddressDisplay: Exception lors de la configuration des écouteurs: {e.Message}");
+            // Pas de souci, nous utiliserons le polling
+        }
+    }
+    
+    private void Update()
+    {
+        // Repositionnement périodique
+        if (positionnerEnHautADroite && rectTransform != null && Time.frameCount % 30 == 0)
+        {
+            RepositionnerTexte();
+        }
+    }
+    
+    private void RepositionnerTexte()
+    {
+        if (rectTransform != null)
+        {
+            Canvas canvas = GetComponentInParent<Canvas>();
+            if (canvas != null)
+            {
+                switch (positionAncrage)
+                {
+                    case AnchorPosition.HautDroite:
+                        rectTransform.anchorMin = new Vector2(1, 1);
+                        rectTransform.anchorMax = new Vector2(1, 1);
+                        rectTransform.pivot = new Vector2(1, 1);
+                        rectTransform.anchoredPosition = new Vector2(
+                            -(margeHorizontale + decalageHorizontal), 
+                            -(margeVerticale + decalageVertical));
+                        // Aligner le texte à droite
+                        if (addressText != null)
+                            addressText.alignment = TextAlignmentOptions.TopRight;
+                        break;
+                    
+                    case AnchorPosition.HautGauche:
+                        rectTransform.anchorMin = new Vector2(0, 1);
+                        rectTransform.anchorMax = new Vector2(0, 1);
+                        rectTransform.pivot = new Vector2(0, 1);
+                        rectTransform.anchoredPosition = new Vector2(
+                            margeHorizontale + decalageHorizontal, 
+                            -(margeVerticale + decalageVertical));
+                        // Aligner le texte à gauche
+                        if (addressText != null)
+                            addressText.alignment = TextAlignmentOptions.TopLeft;
+                        break;
+                    
+                    case AnchorPosition.BasDroite:
+                        rectTransform.anchorMin = new Vector2(1, 0);
+                        rectTransform.anchorMax = new Vector2(1, 0);
+                        rectTransform.pivot = new Vector2(1, 0);
+                        rectTransform.anchoredPosition = new Vector2(
+                            -(margeHorizontale + decalageHorizontal), 
+                            margeVerticale + decalageVertical);
+                        // Aligner le texte à droite
+                        if (addressText != null)
+                            addressText.alignment = TextAlignmentOptions.BottomRight;
+                        break;
+                    
+                    case AnchorPosition.BasGauche:
+                        rectTransform.anchorMin = new Vector2(0, 0);
+                        rectTransform.anchorMax = new Vector2(0, 0);
+                        rectTransform.pivot = new Vector2(0, 0);
+                        rectTransform.anchoredPosition = new Vector2(
+                            margeHorizontale + decalageHorizontal, 
+                            margeVerticale + decalageVertical);
+                        // Aligner le texte à gauche
+                        if (addressText != null)
+                            addressText.alignment = TextAlignmentOptions.BottomLeft;
+                        break;
+                    
+                    case AnchorPosition.Centre:
+                        rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+                        rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+                        rectTransform.pivot = new Vector2(0.5f, 0.5f);
+                        rectTransform.anchoredPosition = new Vector2(
+                            decalageHorizontal, 
+                            decalageVertical);
+                        // Aligner le texte au centre
+                        if (addressText != null)
+                            addressText.alignment = TextAlignmentOptions.Center;
+                        break;
+                }
+                
+                rectTransform.sizeDelta = new Vector2(300, 50);
+            }
+        }
+    }
+    
+    private void UpdateWalletAddress()
+    {
+        if (addressText == null) return;
+        
+        try
+        {
+            bool isConnected = IsWalletConnected();
+            
+            // Si l'état de connexion a changé
+            if (isConnected != wasConnected)
+            {
+                wasConnected = isConnected;
+                if (isConnected)
+                {
+                    Debug.Log("WalletAddressDisplay: Wallet connecté détecté");
+                }
+                else
+                {
+                    Debug.Log("WalletAddressDisplay: Wallet déconnecté détecté");
+                    walletAddress = "";
+                }
+            }
+            
+            if (isConnected)
+            {
+                // Obtenir l'adresse du wallet
+                string address = GetWalletAddress();
+                
+                // Si l'adresse a changé
+                if (address != walletAddress)
+                {
+                    walletAddress = address;
+                    
+                    string displayAddress = showFullAddress ? walletAddress : FormatAddress(walletAddress);
+                    addressText.text = prefix + displayAddress;
+                    addressText.color = connectedColor;
+                    
+                    Debug.Log($"WalletAddressDisplay: Adresse mise à jour: {displayAddress}");
+                }
+            }
+            else
+            {
+                DisplayDisconnectedState();
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"WalletAddressDisplay: Erreur lors de la récupération de l'adresse: {e.Message}");
+            DisplayDisconnectedState();
+        }
+    }
+    
+    private bool IsWalletConnected()
+    {
+        if (AppKit.Instance == null || !AppKit.Instance.IsInitialized)
+            return false;
+            
+        return AppKit.Instance.IsConnected && AppKit.Instance.Wallet != null;
+    }
+    
+    private string GetWalletAddress()
+    {
+        if (!IsWalletConnected())
+            return string.Empty;
+            
+        return AppKit.Instance.Wallet.Address;
+    }
+    
+    private void DisplayDisconnectedState()
+    {
+        if (addressText != null)
+        {
+            addressText.text = notConnectedText;
+            addressText.color = disconnectedColor;
+        }
+    }
+    
+    private string FormatAddress(string address)
+    {
+        if (string.IsNullOrEmpty(address) || address.Length <= 10)
+            return address;
+                
+        return $"{address.Substring(0, 6)}...{address.Substring(address.Length - 4)}";
+    }
+    
+    public void ForceUpdate()
+    {
+        UpdateWalletAddress();
+    }
+    
+    void OnDestroy()
+    {
+        CancelInvoke("UpdateWalletAddress");
+    }
+}
