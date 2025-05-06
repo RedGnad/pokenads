@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>Connect with Rabby</title>
+  <script src="https://unpkg.com/@walletconnect/web3-provider@1.7.8/dist/umd/index.min.js"></script>
+  <style>
+    body { display:flex;justify‐content:center;align‐items:center;height:100vh;margin:0 }
+    button { padding:1rem 2rem;font‐size:1.25rem; }
+  </style>
+</head>
+<body>
+  <button id="connect">Se connecter avec Rabby</button>
+  <script>
+    // 1) Créez le provider en forçant Rabby sur mobile
+    const provider = new WalletConnectProvider.default({
+      rpc: { 10143: "https://rpc.testnet.monad.xyz/" },
+      qrcodeModalOptions: {
+        // soit juste ["rabby"] pour n’afficher que Rabby
+        mobileLinks: ["metamask","trust","rabby","haha"]
+      }
+    });
+
+    // 2) Au clic, on lance le flow WC
+    document.getElementById("connect").onclick = async () => {
+      try {
+        await provider.enable();
+        const address = provider.accounts[0];
+        // on renvoie l’adresse à Unity
+        window.Unity.call(JSON.stringify({ address }));
+      } catch(e) {
+        console.error(e);
+      }
+    };
+  </script>
+</body>
+</html>

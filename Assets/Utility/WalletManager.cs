@@ -1,9 +1,9 @@
-using UnityEngine;
-using TMPro;
 using System;
 using System.Collections;
 using System.Reflection;
+using UnityEngine;
 using UnityEngine.SceneManagement;
+using TMPro;
 
 public class WalletManager : MonoBehaviour
 {
@@ -100,7 +100,7 @@ public class WalletManager : MonoBehaviour
                 addressDisplay = go.GetComponent<TextMeshProUGUI>();
                 if (addressDisplay != null)
                 {
-                    addressDisplay.text = 
+                    addressDisplay.text =
                         !string.IsNullOrEmpty(CurrentWalletAddress)
                             ? (formatAddress ? FormatAddress(CurrentWalletAddress) : CurrentWalletAddress)
                             : notConnectedText;
@@ -120,22 +120,18 @@ public class WalletManager : MonoBehaviour
         var appKit = FindType("Reown.AppKit.Unity.AppKit");
         if (appKit == null) yield break;
 
-        // Vérifier connexion
         var prop = appKit.GetProperty("IsConnectionEstablished") ?? appKit.GetProperty("IsConnected");
         if (prop != null && !(bool)prop.GetValue(null, null))
             yield break;
 
-        // Appeler GetAccountAsync()
         var method = appKit.GetMethod("GetAccountAsync");
         if (method == null) yield break;
 
         object task = null;
         try { task = method.Invoke(null, null); }
         catch { yield break; }
-
         if (task == null) yield break;
 
-        // Attendre la fin
         for (int i = 0; i < 10; i++)
         {
             var doneProp = task.GetType().GetProperty("IsCompleted");
@@ -155,7 +151,6 @@ public class WalletManager : MonoBehaviour
             yield return new WaitForSeconds(0.05f);
         }
 
-        // Mise à jour si changement
         if (newAddress != previousAddress || !initialCheckDone)
         {
             previousAddress = newAddress;
@@ -170,7 +165,7 @@ public class WalletManager : MonoBehaviour
 
             if (addressDisplay != null)
             {
-                addressDisplay.text = 
+                addressDisplay.text =
                     !string.IsNullOrEmpty(newAddress)
                         ? (formatAddress ? FormatAddress(newAddress) : newAddress)
                         : notConnectedText;
@@ -202,39 +197,63 @@ public class WalletManager : MonoBehaviour
     /// </summary>
     public void Disconnect()
     {
-        // Supprimer l'adresse
+        // purge adresse
         PlayerPrefs.DeleteKey(SAVED_WALLET_ADDRESS_KEY);
-
-        // <<< AJOUT MINIMAL >>>
+        // purge scores éventuels
         PlayerPrefs.DeleteKey("TempNadsScore");
         PlayerPrefs.DeleteKey("FirestoreScore");
         PlayerPrefs.DeleteKey("CurrentNadsDisplay");
         PlayerPrefs.Save();
 
-        // Réinitialiser l'état interne
+        // réinitialiser
         previousAddress = string.Empty;
         CurrentWalletAddress = string.Empty;
 
-        // Mettre à jour l'affichage
+        // update UI
         if (addressDisplay != null)
             addressDisplay.text = notConnectedText;
 
-        // Notifier les abonnés
         OnWalletAddressChanged?.Invoke(string.Empty);
-
-        Debug.Log("[WalletManager] Déconnecté et PlayerPrefs de score purgés");
+        Debug.Log("[WalletManager] Déconnecté et prefs purgés");
     }
 
     /// <summary>
-    /// Force une actualisation de l'adresse dans l'UI.
+    /// Ajouté : setter manual pour AppKitInit / RabbyConnector.
+    /// </summary>
+    public void SetWalletAddress(string address)
+    {
+        // persistance
+        if (string.IsNullOrEmpty(address))
+            PlayerPrefs.DeleteKey(SAVED_WALLET_ADDRESS_KEY);
+        else
+            PlayerPrefs.SetString(SAVED_WALLET_ADDRESS_KEY, address);
+        PlayerPrefs.Save();
+
+        // état interne
+        previousAddress = address;
+        CurrentWalletAddress = address;
+
+        // update UI
+        if (addressDisplay != null)
+            addressDisplay.text = 
+                string.IsNullOrEmpty(address)
+                    ? notConnectedText
+                    : (formatAddress ? FormatAddress(address) : address);
+
+        // notifier
+        OnWalletAddressChanged?.Invoke(address);
+        Debug.Log($"[WalletManager] SetWalletAddress → {address}");
+    }
+
+    /// <summary>
+    /// Force une actualisation immédiate (utilisable si besoin).
     /// </summary>
     public void RefreshWalletAddress()
     {
         StartCoroutine(GetAddressSafely());
-        if (addressDisplay != null && 
-            (string.IsNullOrEmpty(addressDisplay.text) || addressDisplay.text == "New Text"))
+        if (addressDisplay != null)
         {
-            addressDisplay.text = 
+            addressDisplay.text =
                 !string.IsNullOrEmpty(CurrentWalletAddress)
                     ? (formatAddress ? FormatAddress(CurrentWalletAddress) : CurrentWalletAddress)
                     : notConnectedText;
