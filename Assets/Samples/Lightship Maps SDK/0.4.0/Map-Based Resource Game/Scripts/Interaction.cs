@@ -22,6 +22,10 @@ public class Interaction : MonoBehaviour
     private Collider myCollider;
 
     public MonsterSpawn monsterSpawnReference;
+    private int requiredClicks = 20; // Valeur par défaut
+    private bool pvAdjusted = false;
+    private float adjustmentTimer = 0f;
+    private const float PV_CHECK_TIMEOUT = 2.0f; // Temps maximum pour ajuster les PV
 
     void Start()
     {
@@ -31,11 +35,91 @@ public class Interaction : MonoBehaviour
             audioSource = gameObject.AddComponent<AudioSource>();
         if (retourButton != null)
             retourButton.SetActive(false);
+            
+        // Afficher le score sans le total
+        if (scoreText != null)
+        {
+            scoreText.text = "Score : " + score;
+        }
+        
+        // Essayer d'ajuster les PV immédiatement
+        AdjustRequiredClicks();
+        
+        // Et aussi lancer une coroutine pour une vérification différée
+        StartCoroutine(DelayedPVCheck());
+    }
+    
+    // Méthode principale pour ajuster les PV en fonction du monstre
+    private bool AdjustRequiredClicks()
+    {
+        if (monsterSpawnReference == null)
+        {
+            monsterSpawnReference = GetComponent<MonsterSpawn>();
+            if (monsterSpawnReference == null)
+            {
+                monsterSpawnReference = FindObjectOfType<MonsterSpawn>();
+                if (monsterSpawnReference == null)
+                {
+                    Debug.LogWarning("[Interaction] Impossible de trouver un MonsterSpawn!");
+                    return false;
+                }
+            }
+        }
+        
+        // Vérifier si le monstre est un Moyaki
+        bool isMoyaki = monsterSpawnReference.selectedMonster == MonsterType.Moyaki;
+        
+        // Ajuster les PV en conséquence
+        int newRequiredClicks = isMoyaki ? 30 : 20;
+        
+        // Si les PV ont changé, mettre à jour et logger
+        if (requiredClicks != newRequiredClicks)
+        {
+            requiredClicks = newRequiredClicks;
+            Debug.Log($"[Interaction] PV ajustés pour {monsterSpawnReference.selectedMonster} : {requiredClicks}");
+            return true;
+        }
+        
+        return requiredClicks == 30 && isMoyaki; // Vrai si déjà correctement ajusté pour Moyaki
+    }
+    
+    private IEnumerator DelayedPVCheck()
+    {
+        // Attendre un peu plus longtemps pour s'assurer que MonsterSpawn a eu le temps d'initialiser
+        yield return new WaitForSeconds(0.3f);
+        
+        bool success = AdjustRequiredClicks();
+        
+        if (success)
+        {
+            pvAdjusted = true;
+            Debug.Log($"[Interaction] PV vérifiés avec succès après délai : {requiredClicks}");
+        }
     }
 
     void Update()
     {
-        if (score >= 20)
+        // Si les PV n'ont pas encore été correctement ajustés, continuer à essayer
+        if (!pvAdjusted)
+        {
+            adjustmentTimer += Time.deltaTime;
+            
+            // Essayer d'ajuster toutes les 0.5 secondes
+            if (adjustmentTimer > 0.5f)
+            {
+                adjustmentTimer = 0f;
+                pvAdjusted = AdjustRequiredClicks();
+                
+                // Abandonner après le délai maximal
+                if (adjustmentTimer > PV_CHECK_TIMEOUT)
+                {
+                    Debug.LogWarning($"[Interaction] Délai d'ajustement PV dépassé, utilisation de {requiredClicks}");
+                    pvAdjusted = true;
+                }
+            }
+        }
+        
+        if (score >= requiredClicks)
             return;
 
         if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
@@ -59,22 +143,40 @@ public class Interaction : MonoBehaviour
                 if (scoreText != null)
                     scoreText.text = "Score : " + score;
 
-                if (score >= 20)
+                if (score >= requiredClicks)
                 {
                     if (GameManager.Instance != null)
                     {
-                        GameManager.Instance.AddScore(20);
+                        // Déterminer les points à ajouter en fonction des PV requis
+                        int pointsToAdd = requiredClicks;
                         
-                        // MODIFICATION: Sauvegarder le score immédiatement
-                        PlayerPrefs.SetInt("TempNadsScore", GameManager.Instance.generalScore);
-                        PlayerPrefs.SetString("LastScoreTimestamp", System.DateTime.Now.ToString());
+                        // Double vérification pour Moyaki
+                        string monsterType = "Mouch"; // Type par défaut
+                        
+                        if (monsterSpawnReference != null)
+                        {
+                            monsterType = monsterSpawnReference.selectedMonster.ToString();
+                            
+                            // Si c'est un Moyaki, forcer 30 points
+                            if (monsterType == "Moyaki")
+                            {
+                                pointsToAdd = 30;
+                            }
+                        }
+                        
+                        // Ajout des points au score
+                        GameManager.Instance.AddScore(pointsToAdd);
+                        PlayerPrefs.SetInt("TempNadsScore", pointsToAdd);
+                        PlayerPrefs.SetString("CapturedMonsterType", monsterType);
                         PlayerPrefs.Save();
-                        Debug.Log("Score anticipé sauvegardé: " + GameManager.Instance.generalScore);
+                        
+                        Debug.Log($"[Interaction] Monstre capturé: {monsterType}, Points: {pointsToAdd}");
                     }
                     
                     if (retourButton != null)
                         retourButton.SetActive(true);
 
+                    // Effets visuels et sonores...
                     if (vfxPrefab != null)
                     {
                         GameObject vfx = Instantiate(vfxPrefab, transform.position, Quaternion.identity);
@@ -92,15 +194,19 @@ public class Interaction : MonoBehaviour
                     if (secondDisappearanceSound != null)
                         AudioSource.PlayClipAtPoint(secondDisappearanceSound, transform.position);
 
-                    string monsterType = "unknown";
-                    if (monsterSpawnReference != null)
-                        monsterType = monsterSpawnReference.selectedMonster.ToString();
+                    // Déterminer le type pour CaptureManager
+                    string capturedType = (requiredClicks == 30) ? "Moyaki" : 
+                                        (monsterSpawnReference != null ? 
+                                         monsterSpawnReference.selectedMonster.ToString() : "Mouch");
 
-                    CaptureManager.CheckCapture(5f, monsterType);
-
+                    // Lancer le processus de capture
+                    CaptureManager.CheckCapture(5f, capturedType);
+                    
+                    // Désactiver l'objet
                     gameObject.SetActive(false);
                 }
 
+                // Effet de particules au clic
                 if (particleSystemPrefab != null)
                 {
                     ParticleSystem ps = Instantiate(particleSystemPrefab, hit.point, Quaternion.identity);
@@ -121,28 +227,8 @@ public class Interaction : MonoBehaviour
         }
     }
 
-    // Méthode modifiée pour vérifier si le score est déjà enregistré
     public void RetourEcranPrincipal()
     {
-        // MODIFICATION: Vérifier si le score est déjà enregistré
-        if (!PlayerPrefs.HasKey("TempNadsScore"))
-        {
-            // Si ce n'est pas le cas, l'enregistrer maintenant
-            if (GameManager.Instance != null)
-            {
-                PlayerPrefs.SetInt("TempNadsScore", GameManager.Instance.generalScore);
-                PlayerPrefs.SetString("LastScoreTimestamp", System.DateTime.Now.ToString());
-                PlayerPrefs.Save();
-                Debug.Log("Score sauvegardé avant changement de scène: " + GameManager.Instance.generalScore);
-            }
-        }
-        else
-        {
-            Debug.Log("Score déjà enregistré, utilisation de la valeur existante: " + 
-                     PlayerPrefs.GetInt("TempNadsScore"));
-        }
-        
-        // Charger la scène comme avant
         SceneManager.LoadScene(0);
     }
 }

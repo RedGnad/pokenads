@@ -10,71 +10,113 @@ public enum MonsterType
 
 public class MonsterSpawn : MonoBehaviour
 {
-    // Référence statique au monstre actif
     private static MonsterSpawn activeMonster;
     
-    // Temps avant l'apparition d'un nouveau monstre (en secondes)
     [SerializeField] private float respawnDelay = 30000f;
-    
     [SerializeField] private GameObject mouchModel; 
     [SerializeField] private GameObject chogModel;  
     [SerializeField] private GameObject moyakiModel;
     [SerializeField] private float captureDelay = 5f;
 
-    public MonsterType selectedMonster;
+    [Header("Probabilités d'apparition")]
+    [Range(0, 100)]
+    [SerializeField] private float mouchChance = 70f;
+    [Range(0, 100)]
+    [SerializeField] private float chogChance = 20f;
+    [Range(0, 100)]
+    [SerializeField] private float moyakiChance = 10f;
+
+    // Cette variable est une copie LOCALE du type de monstre
+    [SerializeField] private MonsterType _selectedMonster;
+    
+    // Propriété pour lire le type en externe
+    public MonsterType selectedMonster 
+    { 
+        get { return _selectedMonster; } 
+        private set { _selectedMonster = value; }
+    }
+    
+    public static MonsterSpawn ActiveMonster { get { return activeMonster; } }
 
     private void Awake()
     {
-        // Si un monstre est déjà actif, désactiver celui-ci
+        // Nettoyer les références entre les sessions
         if (activeMonster != null && activeMonster != this)
         {
             gameObject.SetActive(false);
+            Destroy(gameObject);
             return;
         }
         
-        // Définir ce monstre comme actif
         activeMonster = this;
+        
+        // IMPORTANT: Forcer une nouvelle sélection
+        _selectedMonster = MonsterType.Mouch; // Valeur par défaut
     }
 
     private void Start()
     {
+        // CRUCIAL: Forcer une nouvelle sélection à chaque lancement
+        // pour éviter les problèmes de persistance entre scènes
         SelectRandomMonster();
+        Debug.Log($"[MonsterSpawn] Start - Monstre sélectionné: {_selectedMonster}");
     }
     
     private void SelectRandomMonster()
     {
-        // Désactiver tous les modèles d'abord
+        // Désactiver tous les modèles
         if (mouchModel != null) mouchModel.SetActive(false);
         if (chogModel != null) chogModel.SetActive(false);
         if (moyakiModel != null) moyakiModel.SetActive(false);
         
+        // Déterminer le type aléatoirement
+        float totalChance = mouchChance + chogChance + moyakiChance;
+        float normalizedMouchChance = mouchChance / totalChance;
+        float normalizedChogChance = chogChance / totalChance;
+        
         float rand = Random.value;
         
-        if (rand < 0.70f) // 70% de chance pour Mouch
+        // Assigner le type selon la probabilité
+        if (rand < normalizedMouchChance) 
         {
-            if (mouchModel != null) mouchModel.SetActive(true);
-            selectedMonster = MonsterType.Mouch;
+            _selectedMonster = MonsterType.Mouch;
         }
-        else if (rand < 0.90f) // 20% de chance pour Chog (0.70 à 0.90)
+        else if (rand < normalizedMouchChance + normalizedChogChance) 
         {
-            if (chogModel != null) chogModel.SetActive(true);
-            selectedMonster = MonsterType.Chog;
+            _selectedMonster = MonsterType.Chog;
         }
-        else // 10% de chance pour Moyaki (0.90 à 1.00)
+        else 
         {
-            if (moyakiModel != null) moyakiModel.SetActive(true);
-            selectedMonster = MonsterType.Moyaki;
+            _selectedMonster = MonsterType.Moyaki;
         }
         
-        Debug.Log("Monstre sélectionné: " + selectedMonster.ToString());
+        // IMPORTANT: Activer le modèle correspondant au type choisi
+        switch (_selectedMonster)
+        {
+            case MonsterType.Mouch:
+                if (mouchModel != null) mouchModel.SetActive(true);
+                break;
+            case MonsterType.Chog:
+                if (chogModel != null) chogModel.SetActive(true);
+                break;
+            case MonsterType.Moyaki:
+                if (moyakiModel != null) moyakiModel.SetActive(true);
+                break;
+        }
+        
+        // Sauvegarder pour les autres scripts
+        PlayerPrefs.SetString("CurrentMonsterType", _selectedMonster.ToString());
+        PlayerPrefs.SetInt("RequiredClicks", GetRequiredClicks());
+        PlayerPrefs.Save();
+        
+        Debug.Log($"[MonsterSpawn] Type sélectionné: {_selectedMonster}, PV: {GetRequiredClicks()}");
     }
 
     public void TriggerCapture()
     {
-        Debug.Log("Capture de " + selectedMonster.ToString() + " en cours");
-        CaptureManager.CheckCapture(captureDelay, selectedMonster.ToString());
+        Debug.Log("Capture de " + _selectedMonster.ToString() + " en cours");
+        CaptureManager.CheckCapture(captureDelay, _selectedMonster.ToString());
         
-        // Supprimer ce monstre et planifier l'apparition d'un nouveau
         if (this == activeMonster)
         {
             activeMonster = null;
@@ -87,20 +129,36 @@ public class MonsterSpawn : MonoBehaviour
     {
         yield return new WaitForSeconds(respawnDelay);
         
-        // Créer un nouveau monstre
         GameObject newMonster = Instantiate(gameObject, transform.position, Quaternion.identity);
-        newMonster.SetActive(true);
+        MonsterSpawn newMonsterScript = newMonster.GetComponent<MonsterSpawn>();
+        if (newMonsterScript != null)
+        {
+            // Forcer une nouvelle sélection
+            newMonsterScript.SelectRandomMonster();
+        }
         
-        // Supprimer ce gameObject
         Destroy(gameObject);
     }
     
-    // Méthode statique pour créer un monstre s'il n'y en a pas déjà un
     public static void EnsureMonsterExists(GameObject monsterPrefab, Vector3 position)
     {
         if (activeMonster == null && monsterPrefab != null)
         {
             Instantiate(monsterPrefab, position, Quaternion.identity);
         }
+    }
+    
+    // Méthode simplifiée ne dépendant QUE de _selectedMonster
+    public int GetMonsterPoints()
+    {
+        // Moyaki vaut 30 points, les autres types 20
+        return _selectedMonster == MonsterType.Moyaki ? 30 : 20;
+    }
+    
+    // Méthode simplifiée ne dépendant QUE de _selectedMonster
+    public int GetRequiredClicks()
+    {
+        // Moyaki nécessite 30 clics, les autres types 20
+        return _selectedMonster == MonsterType.Moyaki ? 30 : 20;
     }
 }
