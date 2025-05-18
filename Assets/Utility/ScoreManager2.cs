@@ -6,6 +6,7 @@ public class ScoreManager : MonoBehaviour
 {
     public static ScoreManager Instance;
     private const string TEMP_SCORE_KEY = "TempNadsScore";
+    private const string MONSTER_TYPE_KEY = "CapturedMonsterType";
 
     void Awake()
     {
@@ -21,16 +22,30 @@ public class ScoreManager : MonoBehaviour
     }
 
     /// <summary>
-    /// À appeler quand le combat est terminé pour attribuer 20 points.
+    /// À appeler quand le combat est terminé pour attribuer des points.
     /// </summary>
     public void OnCombatFinished()
     {
+        // Récupérer le type de monstre s'il a été sauvegardé
+        string monsterType = PlayerPrefs.GetString(MONSTER_TYPE_KEY, "unknown");
+        
+        // Déterminer les points selon le type de monstre
+        int points = (monsterType == "Moyaki") ? 30 : 20;
+        
+        // Si TempNadsScore existe déjà, utiliser cette valeur
+        if (PlayerPrefs.HasKey(TEMP_SCORE_KEY))
+        {
+            points = PlayerPrefs.GetInt(TEMP_SCORE_KEY, 20);
+        }
+        
         // Écrase la valeur précédente au lieu de cumuler
-        PlayerPrefs.SetInt(TEMP_SCORE_KEY, 20);
+        PlayerPrefs.SetInt(TEMP_SCORE_KEY, points);
         PlayerPrefs.Save();
 
-        // Lance la mise à jour Firestore
-        UpdateFirestoreScore(20);
+        // Lance la mise à jour Firestore avec la bonne valeur de points
+        UpdateFirestoreScore(points);
+        
+        Debug.Log($"[ScoreManager] Combat terminé avec {monsterType}, {points} points attribués");
     }
 
     private void UpdateFirestoreScore(int pointsToAdd)
@@ -51,11 +66,11 @@ public class ScoreManager : MonoBehaviour
                 // Suppression du TempNadsScore dès que Firestore a pris en compte l'incrément
                 PlayerPrefs.DeleteKey(TEMP_SCORE_KEY);
                 PlayerPrefs.Save();
-                Debug.Log("[ScoreManager] Firestore mis à jour +20, TempNadsScore purgé");
+                Debug.Log($"[ScoreManager] Firestore mis à jour +{pointsToAdd}, TempNadsScore purgé");
             }
             else
             {
-                Debug.LogWarning("[ScoreManager] Échec update Firestore : " + task.Exception);
+                Debug.LogWarning("[ScoreManager] Échec update Firestore : " + task.Exception);
             }
         });
     }

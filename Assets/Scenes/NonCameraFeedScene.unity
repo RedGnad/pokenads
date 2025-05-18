@@ -1406,6 +1406,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: moyaki3
       objectReference: {fileID: 0}
+    - target: {fileID: 5698839685301813347, guid: 614950dbd1dd14ff59283b6ba556bdf7, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1987,18 +1991,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1383482355943576191, guid: 279a1c9c63ba8422e99a7b87c38ae2ac, type: 3}
-      propertyPath: m_Size.y
-      value: 10
-      objectReference: {fileID: 0}
-    - target: {fileID: 1383482355943576191, guid: 279a1c9c63ba8422e99a7b87c38ae2ac, type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1383482355943576191, guid: 279a1c9c63ba8422e99a7b87c38ae2ac, type: 3}
-      propertyPath: m_Center.y
-      value: 15
-      objectReference: {fileID: 0}
     - target: {fileID: 5124276709982300709, guid: 60364521150c34431b7588ff2315588a, type: 3}
       propertyPath: m_LocalScale.x
       value: 0.07891379
@@ -2058,6 +2050,18 @@ PrefabInstance:
     - target: {fileID: 5500801871054188703, guid: 60364521150c34431b7588ff2315588a, type: 3}
       propertyPath: m_Name
       value: skibidi3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1383482355943576191, guid: 279a1c9c63ba8422e99a7b87c38ae2ac, type: 3}
+      propertyPath: m_Size.y
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 1383482355943576191, guid: 279a1c9c63ba8422e99a7b87c38ae2ac, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1383482355943576191, guid: 279a1c9c63ba8422e99a7b87c38ae2ac, type: 3}
+      propertyPath: m_Center.y
+      value: 15
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -2659,11 +2663,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ea03cb5590824c80b23b7538ea692a3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  respawnDelay: 30000
   mouchModel: {fileID: 760737400}
   chogModel: {fileID: 1805600116}
   moyakiModel: {fileID: 109959847}
   captureDelay: 5
-  selectedMonster: 0
+  mouchChance: 0
+  chogChance: 50
+  moyakiChance: 51
+  _selectedMonster: 0
 --- !u!1001 &1177232590894603736
 PrefabInstance:
   m_ObjectHideFlags: 0

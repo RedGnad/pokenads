@@ -9,16 +9,16 @@ public class ParkFeatureSpawner : MonoBehaviour
     private GameObject parkFeaturePrefab;
 
     [SerializeField]
-    private int numberOfFeatures = 50;
+    private int numberOfFeatures = 500;
     [SerializeField]
     private float spawnRadius = 150f;
 
     [SerializeField]
-    private int extraFeaturesCount = 7; // Nombre de features spawnées lors d'une utilisation du bouton
+    private int extraFeaturesCount = 60; // Nombre de features spawnées lors d'une utilisation du bouton
     [SerializeField]
     private float extraSpawnRadius = 30f; // Rayon d'accès pour les extra spawns
 
-    public static int extraSpawnRemaining = 8;
+    public static int extraSpawnRemaining = 60;
 
     [SerializeField]
     private TextMeshProUGUI extraSpawnCounterText;

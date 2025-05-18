@@ -1324,7 +1324,7 @@ MonoBehaviour:
   parkFeaturePrefab: {fileID: 3186435041842479553, guid: 279a1c9c63ba8422e99a7b87c38ae2ac, type: 3}
   numberOfFeatures: 150
   spawnRadius: 300
-  extraFeaturesCount: 3
+  extraFeaturesCount: 60
   extraSpawnRadius: 30
   extraSpawnCounterText: {fileID: 516920125}
 --- !u!1 &405855023
@@ -4918,11 +4918,11 @@ Transform:
   m_GameObject: {fileID: 1276097229}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 15.934554, y: -5.710426, z: 4.798139}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1292123074}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1276097232
 MonoBehaviour:
@@ -5466,7 +5466,8 @@ Transform:
   m_LocalPosition: {x: 15.934554, y: -5.710426, z: 4.798139}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1276097231}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!82 &1292123075
@@ -6733,9 +6734,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shouldSwitchScene: 0
   targetSceneName: MapScreen
-  _menuScene: Menu
-  loadSampleScreenDirectly: 0
-  sampleSceneName: MapScreen
 --- !u!1001 &1748995517
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8912,7 +8910,6 @@ SceneRoots:
   - {fileID: 1207170308}
   - {fileID: 1292123074}
   - {fileID: 1351941332}
-  - {fileID: 1276097231}
   - {fileID: 20186632}
   - {fileID: 1189616714}
   - {fileID: 585925662}

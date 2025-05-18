@@ -122,6 +122,83 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1001 &148444526
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 4926243292537952985, guid: 614950dbd1dd14ff59283b6ba556bdf7, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.15730819
+      objectReference: {fileID: 0}
+    - target: {fileID: 4926243292537952985, guid: 614950dbd1dd14ff59283b6ba556bdf7, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.15730819
+      objectReference: {fileID: 0}
+    - target: {fileID: 4926243292537952985, guid: 614950dbd1dd14ff59283b6ba556bdf7, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.15730819
+      objectReference: {fileID: 0}
+    - target: {fileID: 4926243292537952985, guid: 614950dbd1dd14ff59283b6ba556bdf7, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 18.568
+      objectReference: {fileID: 0}
+    - target: {fileID: 4926243292537952985, guid: 614950dbd1dd14ff59283b6ba556bdf7, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -7.4458
+      objectReference: {fileID: 0}
+    - target: {fileID: 4926243292537952985, guid: 614950dbd1dd14ff59283b6ba556bdf7, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 10.895
+      objectReference: {fileID: 0}
+    - target: {fileID: 4926243292537952985, guid: 614950dbd1dd14ff59283b6ba556bdf7, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7392498
+      objectReference: {fileID: 0}
+    - target: {fileID: 4926243292537952985, guid: 614950dbd1dd14ff59283b6ba556bdf7, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.05220543
+      objectReference: {fileID: 0}
+    - target: {fileID: 4926243292537952985, guid: 614950dbd1dd14ff59283b6ba556bdf7, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.6644828
+      objectReference: {fileID: 0}
+    - target: {fileID: 4926243292537952985, guid: 614950dbd1dd14ff59283b6ba556bdf7, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0.09616112
+      objectReference: {fileID: 0}
+    - target: {fileID: 4926243292537952985, guid: 614950dbd1dd14ff59283b6ba556bdf7, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 2.901
+      objectReference: {fileID: 0}
+    - target: {fileID: 4926243292537952985, guid: 614950dbd1dd14ff59283b6ba556bdf7, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: -83.591
+      objectReference: {fileID: 0}
+    - target: {fileID: 4926243292537952985, guid: 614950dbd1dd14ff59283b6ba556bdf7, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 12.229
+      objectReference: {fileID: 0}
+    - target: {fileID: 4926243292537952985, guid: 614950dbd1dd14ff59283b6ba556bdf7, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5698839685301813347, guid: 614950dbd1dd14ff59283b6ba556bdf7, type: 3}
+      propertyPath: m_Name
+      value: moyaki3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5698839685301813347, guid: 614950dbd1dd14ff59283b6ba556bdf7, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 614950dbd1dd14ff59283b6ba556bdf7, type: 3}
 --- !u!1 &318702763
 GameObject:
   m_ObjectHideFlags: 0
@@ -218,6 +295,11 @@ Transform:
 Transform:
   m_CorrespondingSourceObject: {fileID: 3283499072333372073, guid: fa8b261ab34e54b21a6f74032f4ef370, type: 3}
   m_PrefabInstance: {fileID: 2289671203752053035}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &537966435 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5698839685301813347, guid: 614950dbd1dd14ff59283b6ba556bdf7, type: 3}
+  m_PrefabInstance: {fileID: 148444526}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &667350275
 GameObject:
@@ -329,8 +411,11 @@ MonoBehaviour:
   respawnDelay: 30
   mouchModel: {fileID: 760737400}
   chogModel: {fileID: 1805600116}
-  moyakiModel: {fileID: 5698839685301813347, guid: 614950dbd1dd14ff59283b6ba556bdf7, type: 3}
+  moyakiModel: {fileID: 537966435}
   captureDelay: 5
+  mouchChance: 39
+  chogChance: 20
+  moyakiChance: 87
   selectedMonster: 0
 --- !u!1001 &760737399
 PrefabInstance:
@@ -1661,6 +1746,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d22cd3325565a433b84153d4faf6c2fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  scoreTextObjectName: ScoreText
 --- !u!1 &1295165491
 GameObject:
   m_ObjectHideFlags: 0
@@ -2069,18 +2155,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1383482355943576191, guid: 279a1c9c63ba8422e99a7b87c38ae2ac, type: 3}
-      propertyPath: m_Size.y
-      value: 10
-      objectReference: {fileID: 0}
-    - target: {fileID: 1383482355943576191, guid: 279a1c9c63ba8422e99a7b87c38ae2ac, type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1383482355943576191, guid: 279a1c9c63ba8422e99a7b87c38ae2ac, type: 3}
-      propertyPath: m_Center.y
-      value: 15
-      objectReference: {fileID: 0}
     - target: {fileID: 5124276709982300709, guid: 60364521150c34431b7588ff2315588a, type: 3}
       propertyPath: m_LocalScale.x
       value: 0.07891379
@@ -2140,6 +2214,18 @@ PrefabInstance:
     - target: {fileID: 5500801871054188703, guid: 60364521150c34431b7588ff2315588a, type: 3}
       propertyPath: m_Name
       value: skibidi3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1383482355943576191, guid: 279a1c9c63ba8422e99a7b87c38ae2ac, type: 3}
+      propertyPath: m_Size.y
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 1383482355943576191, guid: 279a1c9c63ba8422e99a7b87c38ae2ac, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1383482355943576191, guid: 279a1c9c63ba8422e99a7b87c38ae2ac, type: 3}
+      propertyPath: m_Center.y
+      value: 15
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -2770,6 +2856,7 @@ SceneRoots:
   - {fileID: 1218900518}
   - {fileID: 760737399}
   - {fileID: 1736994058}
+  - {fileID: 148444526}
   - {fileID: 826060024}
   - {fileID: 1295165495}
   - {fileID: 933893062}
