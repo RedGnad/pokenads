@@ -107,9 +107,12 @@ public class MonsterSpawn : MonoBehaviour
         // Sauvegarder pour les autres scripts
         PlayerPrefs.SetString("CurrentMonsterType", _selectedMonster.ToString());
         PlayerPrefs.SetInt("RequiredClicks", GetRequiredClicks());
+        
+        // AJOUT: Enregistrer explicitement les points pour Firebase
+        PlayerPrefs.SetInt("CurrentMonsterPoints", GetMonsterPoints());
         PlayerPrefs.Save();
         
-        Debug.Log($"[MonsterSpawn] Type sélectionné: {_selectedMonster}, PV: {GetRequiredClicks()}");
+        Debug.Log($"[MonsterSpawn] Type sélectionné: {_selectedMonster}, PV: {GetRequiredClicks()}, Points: {GetMonsterPoints()}");
     }
 
     public void TriggerCapture()

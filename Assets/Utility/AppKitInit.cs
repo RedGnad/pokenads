@@ -34,8 +34,8 @@ namespace Sample
                 metadata                      = new Metadata(
                     "Pokenads",
                     "AppKit Unity Sample - Monad Testnet",
-                    "https://reown.com",
-                    "https://raw.githubusercontent.com/reown-com/reown-dotnet/main/media/appkit-icon.png",
+                    "https://pokenads-c58e5.web.app",
+                    "https://raw.githubusercontent.com/RedGnad/pokenads/master/pokenads-logo8.png",
                     new RedirectData { Native = "appkit-sample-unity://" }
                 ),
                 customWallets                 = GetCustomWallets(),  // NE REMPLACE QUE SUR ANDROID

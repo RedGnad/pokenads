@@ -11,9 +11,11 @@ public class FirebaseTest : MonoBehaviour
     private string commitUrl = "https://firestore.googleapis.com/v1/projects/pokenads-c58e5/databases/(default)/documents:commit";
     private const string WALLET_ADDRESS_KEY = "LastConnectedWallet";
     private const string TEMP_SCORE_KEY = "TempNadsScore";
+    private const string MONSTER_TYPE_KEY = "CapturedMonsterType";
     private const string UPDATE_PROCESSED_KEY = "ScoreUpdateAlreadyProcessed";
     
-    [SerializeField] private int scoreIncrement = 20;
+    // Supprimer cette variable car on va utiliser les PlayerPrefs
+    // [SerializeField] private int scoreIncrement = 20;
     
     void Awake()
     {
@@ -40,9 +42,10 @@ public class FirebaseTest : MonoBehaviour
         }
 
         // Traitement uniquement pour la scène principale (index 0)
-        if (PlayerPrefs.HasKey(TEMP_SCORE_KEY) && PlayerPrefs.GetInt(UPDATE_PROCESSED_KEY, 0) != 1)
+        if ((PlayerPrefs.HasKey(TEMP_SCORE_KEY) || PlayerPrefs.HasKey("CurrentMonsterPoints")) && 
+            PlayerPrefs.GetInt(UPDATE_PROCESSED_KEY, 0) != 1)
         {
-            Debug.Log("Détection d'un score temporaire à mettre à jour");
+            Debug.Log("Détection d'un score à mettre à jour");
             TestPatchEntry();
             
             // Marquer comme traité immédiatement pour éviter le double traitement
@@ -119,6 +122,41 @@ public class FirebaseTest : MonoBehaviour
     {
         string documentName = "projects/pokenads-c58e5/databases/(default)/documents/Scores/" + walletAddress;
 
+        // Lire les points depuis PlayerPrefs - IMPORTANT: Modifications ici
+        int scoreIncrement;
+        string monsterType;
+        
+        // Priorité à TempNadsScore (défini à la capture)
+        if (PlayerPrefs.HasKey(TEMP_SCORE_KEY))
+        {
+            scoreIncrement = PlayerPrefs.GetInt(TEMP_SCORE_KEY);
+            monsterType = PlayerPrefs.GetString(MONSTER_TYPE_KEY, "unknown");
+            Debug.Log($"[FirebaseTest] Utilisation des données de capture: {scoreIncrement} points pour {monsterType}");
+        }
+        // Sinon utiliser CurrentMonsterPoints (défini au spawn)
+        else if (PlayerPrefs.HasKey("CurrentMonsterPoints"))
+        {
+            scoreIncrement = PlayerPrefs.GetInt("CurrentMonsterPoints");
+            monsterType = PlayerPrefs.GetString("CurrentMonsterType", "unknown");
+            Debug.Log($"[FirebaseTest] Utilisation des données de spawn: {scoreIncrement} points pour {monsterType}");
+        }
+        // Valeur par défaut
+        else
+        {
+            scoreIncrement = 20;
+            monsterType = "unknown";
+            Debug.LogWarning("[FirebaseTest] Aucune donnée trouvée, utilisation valeur par défaut: 20 points");
+        }
+        
+        // Double vérification pour Moyaki
+        if (monsterType == "Moyaki" && scoreIncrement != 30)
+        {
+            scoreIncrement = 30;
+            Debug.LogWarning("[FirebaseTest] Correction: Moyaki détecté mais score incorrect, forcé à 30 points");
+        }
+        
+        Debug.Log($"[FirebaseTest] Envoi final: {scoreIncrement} points pour {monsterType}");
+
         string jsonPayload =
             "{" +
             "  \"writes\": [" +
@@ -157,6 +195,9 @@ public class FirebaseTest : MonoBehaviour
             Debug.Log("Score mis à jour avec succès");
             // Nettoyer après mise à jour réussie
             PlayerPrefs.DeleteKey(TEMP_SCORE_KEY);
+            PlayerPrefs.DeleteKey(MONSTER_TYPE_KEY);
+            PlayerPrefs.DeleteKey("CurrentMonsterType");
+            PlayerPrefs.DeleteKey("CurrentMonsterPoints");
             PlayerPrefs.DeleteKey("LastScoreTimestamp");
             PlayerPrefs.Save();
         }

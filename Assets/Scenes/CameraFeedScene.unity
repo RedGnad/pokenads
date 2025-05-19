@@ -197,7 +197,13 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5698839685301813347, guid: 614950dbd1dd14ff59283b6ba556bdf7, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 537966440}
+    - targetCorrespondingSourceObject: {fileID: 5698839685301813347, guid: 614950dbd1dd14ff59283b6ba556bdf7, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 537966439}
   m_SourcePrefab: {fileID: 100100000, guid: 614950dbd1dd14ff59283b6ba556bdf7, type: 3}
 --- !u!1 &318702763
 GameObject:
@@ -301,6 +307,51 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 5698839685301813347, guid: 614950dbd1dd14ff59283b6ba556bdf7, type: 3}
   m_PrefabInstance: {fileID: 148444526}
   m_PrefabAsset: {fileID: 0}
+--- !u!135 &537966439
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 537966435}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 8
+  m_Center: {x: 2.6026964, y: 0.103242435, z: 0.39998305}
+--- !u!114 &537966440
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 537966435}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ef4beddffadb445eb1fed5b79815e21, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  score: 0
+  scoreText: {fileID: 1857853862}
+  retourButton: {fileID: 1423854213}
+  particleSystemPrefab: {fileID: 4421013621074360097, guid: 5ae1fac9b4f18428dad9e2fd7e4dc5c2, type: 3}
+  vfxPrefab: {fileID: 5824670795371433373, guid: f6fd568b816c64943a44efc3add3a881, type: 3}
+  extraVfxPrefab: {fileID: 2708598583397607911, guid: 6398d43fe79ea0140913dc5530c646af, type: 3}
+  thirdVfxPrefab: {fileID: 5112403345868107898, guid: 6f34ef0d986e9db4199cf75805f79753, type: 3}
+  thirdVfxDelay: 5
+  interactionSound: {fileID: 8300000, guid: 7e27bda15b41749318166300a243dc52, type: 3}
+  disappearanceSound: {fileID: 8300000, guid: 7b4c8c28426764a7685e8a1282218743, type: 3}
+  secondDisappearanceSound: {fileID: 8300000, guid: ea5de572a6e2a4a1cab556c582394329, type: 3}
+  monsterSpawnReference: {fileID: 746000309}
 --- !u!1 &667350275
 GameObject:
   m_ObjectHideFlags: 0
@@ -408,15 +459,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ea03cb5590824c80b23b7538ea692a3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  respawnDelay: 30
+  respawnDelay: 3000
   mouchModel: {fileID: 760737400}
   chogModel: {fileID: 1805600116}
   moyakiModel: {fileID: 537966435}
   captureDelay: 5
-  mouchChance: 39
-  chogChance: 20
-  moyakiChance: 87
-  selectedMonster: 0
+  mouchChance: 0
+  chogChance: 51
+  moyakiChance: 53
+  _selectedMonster: 0
 --- !u!1001 &760737399
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2155,6 +2206,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1383482355943576191, guid: 279a1c9c63ba8422e99a7b87c38ae2ac, type: 3}
+      propertyPath: m_Size.y
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 1383482355943576191, guid: 279a1c9c63ba8422e99a7b87c38ae2ac, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1383482355943576191, guid: 279a1c9c63ba8422e99a7b87c38ae2ac, type: 3}
+      propertyPath: m_Center.y
+      value: 15
+      objectReference: {fileID: 0}
     - target: {fileID: 5124276709982300709, guid: 60364521150c34431b7588ff2315588a, type: 3}
       propertyPath: m_LocalScale.x
       value: 0.07891379
@@ -2214,18 +2277,6 @@ PrefabInstance:
     - target: {fileID: 5500801871054188703, guid: 60364521150c34431b7588ff2315588a, type: 3}
       propertyPath: m_Name
       value: skibidi3
-      objectReference: {fileID: 0}
-    - target: {fileID: 1383482355943576191, guid: 279a1c9c63ba8422e99a7b87c38ae2ac, type: 3}
-      propertyPath: m_Size.y
-      value: 10
-      objectReference: {fileID: 0}
-    - target: {fileID: 1383482355943576191, guid: 279a1c9c63ba8422e99a7b87c38ae2ac, type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1383482355943576191, guid: 279a1c9c63ba8422e99a7b87c38ae2ac, type: 3}
-      propertyPath: m_Center.y
-      value: 15
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
