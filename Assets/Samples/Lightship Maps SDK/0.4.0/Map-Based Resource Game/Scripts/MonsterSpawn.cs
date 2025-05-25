@@ -5,7 +5,8 @@ public enum MonsterType
 {
     Mouch,
     Chog,
-    Moyaki
+    Moyaki,
+    Molandak // Nouveau monstre ajouté
 }
 
 public class MonsterSpawn : MonoBehaviour
@@ -16,15 +17,18 @@ public class MonsterSpawn : MonoBehaviour
     [SerializeField] private GameObject mouchModel; 
     [SerializeField] private GameObject chogModel;  
     [SerializeField] private GameObject moyakiModel;
+    [SerializeField] private GameObject molandakModel; // Nouveau modèle ajouté
     [SerializeField] private float captureDelay = 5f;
 
     [Header("Probabilités d'apparition")]
     [Range(0, 100)]
-    [SerializeField] private float mouchChance = 70f;
+    [SerializeField] private float mouchChance = 60f; // Ajusté pour faire de la place pour Molandak
     [Range(0, 100)]
     [SerializeField] private float chogChance = 20f;
     [Range(0, 100)]
     [SerializeField] private float moyakiChance = 10f;
+    [Range(0, 100)]
+    [SerializeField] private float molandakChance = 10f; // Probabilité pour Molandak
 
     // Cette variable est une copie LOCALE du type de monstre
     [SerializeField] private MonsterType _selectedMonster;
@@ -68,11 +72,14 @@ public class MonsterSpawn : MonoBehaviour
         if (mouchModel != null) mouchModel.SetActive(false);
         if (chogModel != null) chogModel.SetActive(false);
         if (moyakiModel != null) moyakiModel.SetActive(false);
+        if (molandakModel != null) molandakModel.SetActive(false); // Nouveau modèle
         
         // Déterminer le type aléatoirement
-        float totalChance = mouchChance + chogChance + moyakiChance;
+        float totalChance = mouchChance + chogChance + moyakiChance + molandakChance; // Ajout de molandakChance
         float normalizedMouchChance = mouchChance / totalChance;
         float normalizedChogChance = chogChance / totalChance;
+        float normalizedMoyakiChance = moyakiChance / totalChance;
+        // Pas besoin de calculer normalizedMolandakChance car c'est implicitement le reste
         
         float rand = Random.value;
         
@@ -85,9 +92,13 @@ public class MonsterSpawn : MonoBehaviour
         {
             _selectedMonster = MonsterType.Chog;
         }
-        else 
+        else if (rand < normalizedMouchChance + normalizedChogChance + normalizedMoyakiChance) 
         {
             _selectedMonster = MonsterType.Moyaki;
+        }
+        else 
+        {
+            _selectedMonster = MonsterType.Molandak; // Nouveau monstre
         }
         
         // IMPORTANT: Activer le modèle correspondant au type choisi
@@ -101,6 +112,9 @@ public class MonsterSpawn : MonoBehaviour
                 break;
             case MonsterType.Moyaki:
                 if (moyakiModel != null) moyakiModel.SetActive(true);
+                break;
+            case MonsterType.Molandak:
+                if (molandakModel != null) molandakModel.SetActive(true);
                 break;
         }
         
@@ -151,17 +165,39 @@ public class MonsterSpawn : MonoBehaviour
         }
     }
     
-    // Méthode simplifiée ne dépendant QUE de _selectedMonster
+    // Méthode mise à jour pour inclure Molandak
     public int GetMonsterPoints()
     {
-        // Moyaki vaut 30 points, les autres types 20
-        return _selectedMonster == MonsterType.Moyaki ? 30 : 20;
+        switch (_selectedMonster)
+        {
+            case MonsterType.Mouch:
+                return 20;
+            case MonsterType.Chog:
+                return 20;
+            case MonsterType.Moyaki:
+                return 30;
+            case MonsterType.Molandak:
+                return 50; // Nouveau monstre rapporte 50 points
+            default:
+                return 20;
+        }
     }
     
-    // Méthode simplifiée ne dépendant QUE de _selectedMonster
+    // Méthode mise à jour pour inclure Molandak
     public int GetRequiredClicks()
     {
-        // Moyaki nécessite 30 clics, les autres types 20
-        return _selectedMonster == MonsterType.Moyaki ? 30 : 20;
+        switch (_selectedMonster)
+        {
+            case MonsterType.Mouch:
+                return 20;
+            case MonsterType.Chog:
+                return 20;
+            case MonsterType.Moyaki:
+                return 30;
+            case MonsterType.Molandak:
+                return 50; // Nouveau monstre nécessite 50 clics pour être vaincu
+            default:
+                return 20;
+        }
     }
 }

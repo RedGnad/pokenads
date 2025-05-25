@@ -149,7 +149,7 @@ public class ParkFeatureSpawner : MonoBehaviour
     private void UpdateExtraSpawnCounterUI()
     {
         if (extraSpawnCounterText != null)
-            extraSpawnCounterText.text = "Spawn: " + extraSpawnRemaining;
+            extraSpawnCounterText.text = "" + extraSpawnRemaining;
     }
 
     public static void MarkFeatureCollected(Vector3 featurePosition)

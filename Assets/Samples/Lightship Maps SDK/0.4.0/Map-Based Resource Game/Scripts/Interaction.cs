@@ -66,21 +66,22 @@ public class Interaction : MonoBehaviour
             }
         }
         
-        // Vérifier si le monstre est un Moyaki
-        bool isMoyaki = monsterSpawnReference.selectedMonster == MonsterType.Moyaki;
-        
-        // Ajuster les PV en conséquence
-        int newRequiredClicks = isMoyaki ? 30 : 20;
-        
-        // Si les PV ont changé, mettre à jour et logger
-        if (requiredClicks != newRequiredClicks)
+        // Déterminer les PV en fonction du type de monstre
+        switch (monsterSpawnReference.selectedMonster)
         {
-            requiredClicks = newRequiredClicks;
-            Debug.Log($"[Interaction] PV ajustés pour {monsterSpawnReference.selectedMonster} : {requiredClicks}");
-            return true;
+            case MonsterType.Moyaki:
+                requiredClicks = 30;
+                break;
+            case MonsterType.Molandak: // NOUVEAU: Cas pour Molandak
+                requiredClicks = 50;
+                break;
+            default: // Mouch, Chog et autres
+                requiredClicks = 20;
+                break;
         }
         
-        return requiredClicks == 30 && isMoyaki; // Vrai si déjà correctement ajusté pour Moyaki
+        Debug.Log($"[Interaction] PV ajustés pour {monsterSpawnReference.selectedMonster} : {requiredClicks}");
+        return true;
     }
     
     private IEnumerator DelayedPVCheck()
@@ -103,115 +104,161 @@ public class Interaction : MonoBehaviour
         if (!pvAdjusted)
         {
             adjustmentTimer += Time.deltaTime;
-            
-            // Essayer d'ajuster toutes les 0.5 secondes
             if (adjustmentTimer > 0.5f)
             {
                 adjustmentTimer = 0f;
                 pvAdjusted = AdjustRequiredClicks();
                 
-                // Abandonner après le délai maximal
                 if (adjustmentTimer > PV_CHECK_TIMEOUT)
                 {
-                    Debug.LogWarning($"[Interaction] Délai d'ajustement PV dépassé, utilisation de {requiredClicks}");
+                    // Abandonner après le temps imparti
                     pvAdjusted = true;
+                    Debug.LogWarning("[Interaction] Échec d'ajustement des PV, utilisation de la valeur par défaut");
                 }
             }
         }
         
         if (score >= requiredClicks)
-            return;
-
+        {
+            if (retourButton != null && !retourButton.activeSelf)
+                retourButton.SetActive(true);
+        }
+        
         if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
+        {
             ProcessInput(Input.GetTouch(0).position);
+        }
         else if (Input.GetMouseButtonDown(0))
+        {
             ProcessInput(Input.mousePosition);
+        }
     }
 
     void ProcessInput(Vector3 screenPos)
     {
         Ray ray = Camera.main.ScreenPointToRay(screenPos);
         RaycastHit hit;
+        
         if (Physics.Raycast(ray, out hit))
         {
             if (hit.transform == transform)
             {
                 if (interactionSound != null && audioSource != null)
+                {
                     audioSource.PlayOneShot(interactionSound);
+                }
 
                 score++;
                 if (scoreText != null)
+                {
                     scoreText.text = "Score : " + score;
+                }
 
                 if (score >= requiredClicks)
                 {
                     if (GameManager.Instance != null)
                     {
-                        // Déterminer les points à ajouter en fonction des PV requis
-                        int pointsToAdd = requiredClicks;
-                        
-                        // Double vérification pour Moyaki
-                        string monsterType = "Mouch"; // Type par défaut
+                        string monsterType = "unknown";
+                        int scorePoints = 20; // Valeur par défaut
                         
                         if (monsterSpawnReference != null)
                         {
                             monsterType = monsterSpawnReference.selectedMonster.ToString();
                             
-                            // Si c'est un Moyaki, forcer 30 points
+                            // Attribution de points selon le type
                             if (monsterType == "Moyaki")
                             {
-                                pointsToAdd = 30;
+                                scorePoints = 30;
                             }
+                            else if (monsterType == "Molandak") // NOUVEAU: Points pour Molandak
+                            {
+                                scorePoints = 50;
+                            }
+                            
+                            PlayerPrefs.SetString("CapturedMonsterType", monsterType);
+                            PlayerPrefs.SetInt("TempNadsScore", scorePoints);
+                            PlayerPrefs.Save();
+                            
+                            Debug.Log($"[Interaction] Monstre {monsterType} vaincu, {scorePoints} points attribués");
+                            
+                            GameManager.Instance.AddScore(scorePoints);
+                            
+                            if (monsterSpawnReference != null && monsterSpawnReference.gameObject != null)
+                            {
+                                MonsterSpawn.ActiveMonster.TriggerCapture();
+                                
+                                // Masquer les modèles de monstres (ajout pour résoudre le problème)
+                                HideMonsterModels();
+                            }
+                            
+                            GameEvents.NotifyCombatFinished(monsterType);
                         }
-                        
-                        // Ajout des points au score
-                        GameManager.Instance.AddScore(pointsToAdd);
-                        PlayerPrefs.SetInt("TempNadsScore", pointsToAdd);
-                        PlayerPrefs.SetString("CapturedMonsterType", monsterType);
-                        PlayerPrefs.Save();
-                        
-                        Debug.Log($"[Interaction] Monstre capturé: {monsterType}, Points: {pointsToAdd}");
                     }
                     
                     if (retourButton != null)
                         retourButton.SetActive(true);
 
-                    // Effets visuels et sonores...
                     if (vfxPrefab != null)
                     {
-                        GameObject vfx = Instantiate(vfxPrefab, transform.position, Quaternion.identity);
-                        Destroy(vfx, 5f);
+                        Instantiate(vfxPrefab, transform.position, Quaternion.identity);
                     }
                     if (extraVfxPrefab != null)
                     {
-                        GameObject extraVfx = Instantiate(extraVfxPrefab, transform.position, Quaternion.identity);
-                        Destroy(extraVfx, 5f);
+                        Instantiate(extraVfxPrefab, transform.position, Quaternion.identity);
                     }
-                    StartCoroutine(SpawnThirdVfx());
 
                     if (disappearanceSound != null)
-                        AudioSource.PlayClipAtPoint(disappearanceSound, transform.position);
+                    {
+                        audioSource.PlayOneShot(disappearanceSound);
+                    }
+
                     if (secondDisappearanceSound != null)
-                        AudioSource.PlayClipAtPoint(secondDisappearanceSound, transform.position);
+                    {
+                        audioSource.PlayOneShot(secondDisappearanceSound);
+                    }
 
-                    // Déterminer le type pour CaptureManager
-                    string capturedType = (requiredClicks == 30) ? "Moyaki" : 
-                                        (monsterSpawnReference != null ? 
-                                         monsterSpawnReference.selectedMonster.ToString() : "Mouch");
-
-                    // Lancer le processus de capture
-                    CaptureManager.CheckCapture(5f, capturedType);
+                    StartCoroutine(SpawnThirdVfx());
                     
-                    // Désactiver l'objet
-                    gameObject.SetActive(false);
+                    if (myCollider != null)
+                        myCollider.enabled = false;
                 }
-
-                // Effet de particules au clic
                 if (particleSystemPrefab != null)
                 {
-                    ParticleSystem ps = Instantiate(particleSystemPrefab, hit.point, Quaternion.identity);
-                    ps.Play();
-                    Destroy(ps.gameObject, ps.main.duration + ps.main.startLifetime.constantMax);
+                    Instantiate(particleSystemPrefab, hit.point, Quaternion.identity);
+                }
+            }
+        }
+    }
+    
+    // Nouvelle méthode pour masquer tous les modèles de monstres
+    private void HideMonsterModels()
+    {
+        // Désactiver ce GameObject pour le masquer
+        if (gameObject != null)
+        {
+            // Désactiver les Renderers pour masquer le modèle visuellement
+            Renderer[] renderers = GetComponentsInChildren<Renderer>();
+            foreach (Renderer renderer in renderers)
+            {
+                renderer.enabled = false;
+            }
+            
+            // Pour Molandak spécifiquement
+            GameObject molandakModel = GameObject.Find("MolandakModel");
+            if (molandakModel != null)
+            {
+                molandakModel.SetActive(false);
+            }
+        }
+        
+        // En cas de structure différente, essayer de trouver et masquer les modèles par nom
+        if (monsterSpawnReference != null)
+        {
+            foreach (Transform child in monsterSpawnReference.transform)
+            {
+                if (child.name.Contains("Model"))
+                {
+                    child.gameObject.SetActive(false);
                 }
             }
         }
@@ -222,13 +269,13 @@ public class Interaction : MonoBehaviour
         yield return new WaitForSeconds(thirdVfxDelay);
         if (thirdVfxPrefab != null)
         {
-            GameObject thirdVfx = Instantiate(thirdVfxPrefab, transform.position, Quaternion.identity);
-            Destroy(thirdVfx, 5f);
+            Instantiate(thirdVfxPrefab, transform.position, Quaternion.identity);
         }
     }
 
     public void RetourEcranPrincipal()
     {
-        SceneManager.LoadScene(0);
+        SceneTransitionData.LoadingTime = 1f;
+        SceneManager.LoadScene("MapScreen");
     }
 }

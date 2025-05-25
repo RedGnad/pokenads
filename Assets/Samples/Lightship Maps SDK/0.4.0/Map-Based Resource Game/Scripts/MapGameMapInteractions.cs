@@ -30,6 +30,11 @@ namespace Niantic.Lightship.Maps.Samples.GameSample
         [SerializeField] private AudioClip tooFarSound;
         private AudioSource audioSource;
 
+        // Nouvelles variables pour vérifier l'existence du bloqueur modal
+        private bool isWalletModalOpen = false;
+        private float lastCheckTime = 0f;
+        private const float CHECK_INTERVAL = 0.5f; // Vérifier toutes les 0.5 secondes
+
         private MapGameState.StructureType _placingStructureType;
         private bool _placingStructure;
 
@@ -50,6 +55,24 @@ namespace Niantic.Lightship.Maps.Samples.GameSample
 
         private void Update()
         {
+            // Vérifier périodiquement si l'objet bloqueur existe
+            if (Time.time > lastCheckTime + CHECK_INTERVAL)
+            {
+                lastCheckTime = Time.time;
+                isWalletModalOpen = GameObject.Find("WalletModalBlocker") != null;
+                
+                if (isWalletModalOpen)
+                {
+                    Debug.Log("[MapGameMapInteractions] Détection du bloqueur de modal wallet");
+                }
+            }
+            
+            // NOUVEAU: Si l'inventaire est ouvert OU le modal wallet est ouvert, ignorer les entrées
+            if (InventoryUI.IsInventoryOpen || isWalletModalOpen)
+            {
+                return;
+            }
+            
             var touchPosition = Vector3.zero;
             bool touchDetected = false;
 
@@ -91,6 +114,13 @@ namespace Niantic.Lightship.Maps.Samples.GameSample
 
         private void PlaceStructure(Vector3 touchPosition)
         {
+            // NOUVEAU: Vérifier si l'inventaire est ouvert OU le modal wallet est ouvert
+            if (InventoryUI.IsInventoryOpen || isWalletModalOpen)
+            {
+                Debug.Log("[MapGameMapInteractions] Placement de structure ignoré - UI modale ouverte");
+                return;
+            }
+            
             var structureLatLng = ScreenPointToLatLong(touchPosition);
             var cameraForward = _mapCamera.transform.forward;
             var forward = new Vector3(cameraForward.x, 0f, cameraForward.z).normalized;
@@ -118,6 +148,13 @@ namespace Niantic.Lightship.Maps.Samples.GameSample
 
         private void CheckForInteractableTouch(Vector3 touchPosition)
         {
+            // NOUVEAU: Vérifier si l'inventaire est ouvert OU le modal wallet est ouvert
+            if (InventoryUI.IsInventoryOpen || isWalletModalOpen)
+            {
+                Debug.Log("[MapGameMapInteractions] Interaction ignorée - UI modale ouverte");
+                return;
+            }
+            
             // Obtenir le rayon à partir du point de l'écran
             var touchRay = _mapCamera.ScreenPointToRay(touchPosition);
 

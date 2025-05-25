@@ -155,6 +155,13 @@ public class FirebaseTest : MonoBehaviour
             Debug.LogWarning("[FirebaseTest] Correction: Moyaki détecté mais score incorrect, forcé à 30 points");
         }
         
+        // NOUVELLE VÉRIFICATION pour Molandak
+        if (monsterType == "Molandak" && scoreIncrement != 50)
+        {
+            scoreIncrement = 50;
+            Debug.LogWarning("[FirebaseTest] Correction: Molandak détecté mais score incorrect, forcé à 50 points");
+        }
+        
         Debug.Log($"[FirebaseTest] Envoi final: {scoreIncrement} points pour {monsterType}");
 
         string jsonPayload =
