@@ -39,7 +39,6 @@ public class MapGameUI : MonoBehaviour
     {
         if (walletAddressText != null)
         {
-            Debug.Log("MapScreenUI: Tentative de récupération de l'adresse wallet");
             string walletAddress = GetWalletAddress();
             
             if (!string.IsNullOrEmpty(walletAddress))
@@ -57,7 +56,6 @@ public class MapGameUI : MonoBehaviour
             }
             else
             {
-                Debug.Log("MapScreenUI: Aucune adresse trouvée");
                 walletAddressText.text = "Not connected";
                 
                 // Log détaillé une seule fois par session
